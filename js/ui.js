@@ -892,9 +892,12 @@
       txt.classList.add("caption");
       txt.classList.toggle("caption-long", pages.some((p) => String(p).length > 24));
       txt.classList.toggle("caption-notice", !!(opts && opts.notice));
+      const blackFirst = opts && opts.blackFirst;
+      if (blackFirst) layer.style.transition = "none";
       layer.classList.add("on");
       this.textbox.classList.add("hidden");
-      await sleep(900);
+      if (blackFirst) { void layer.offsetWidth; layer.style.transition = "opacity 1.2s ease"; await sleep(blackFirst); }
+      else await sleep(900);
       for (let i = 0; i < pages.length; i++) {
         txt.textContent = pages[i];
         void txt.offsetWidth;

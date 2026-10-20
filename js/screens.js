@@ -742,6 +742,7 @@
         if (p === "絕望") { m.endings = [...ids]; m.despairDone = false; m.perfect = false; }
         if (p === "希望") { m.endings = [...ids]; m.despairDone = true; m.perfect = false; }
         if (p === "通關") { m.endings = [...ids]; m.despairDone = true; m.perfect = true; }
+        m.hopeIntroSeen = false;
         m.lastPetalAt = 0;
         Store.deleteSlot("auto");
         Store.save("dev");

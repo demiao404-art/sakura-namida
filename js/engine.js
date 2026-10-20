@@ -218,11 +218,21 @@
       };
     }
 
-    newGame() {
+    async newGame() {
       this.stop();
-      this.state = this.freshState(this.currentPhase());
+      const phase = this.currentPhase();
+      this.state = this.freshState(phase);
       this.ui.resetScene();
       this.ui.backlog.length = 0;
+      // 第一次開始希望輪：純黑兩秒，然後是開場字幕
+      const m = Store.meta;
+      const intro = this.config.希望輪開場字幕;
+      if (phase === "希望" && !m.hopeIntroSeen && Array.isArray(intro) && intro.length) {
+        this.audio.bgm(null);
+        await this.ui.captions(intro, { blackFirst: 2000 });
+        m.hopeIntroSeen = true;
+        Store.save("notice");
+      }
       this.run();
     }
 
@@ -595,8 +605,8 @@
         Store.save("ending");
         await this.ui.endingSequence("despair");
         await this.deathNotice();
-        const cap = this.config.進入希望輪字幕 || {};
-        await this.ui.captions(cap.文字 ? [cap.文字] : [], { button: cap.按鈕 || "" });
+        const cap = this.config.進入希望輪字幕;
+        await this.ui.captions(Array.isArray(cap) ? cap : cap && cap.文字 ? [cap.文字] : []);
         return this.exitToTitle({ from: "despair" });
       }
 
