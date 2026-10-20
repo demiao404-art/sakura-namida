@@ -85,7 +85,7 @@
     renderStats() {
       const hud = $("stats-hud");
       if (!hud) return;
-      const E = (this.cfg.感情值 || {}).項目 || {};
+      const E = Object.fromEntries(Object.entries((this.cfg.感情值 || {}).項目 || {}).filter(([, d]) => !d.不顯示));
       const show = !!(this.playing && this._statVars && Store.meta.settings.showStats !== false);
       hud.hidden = !show;
       if (!show) return;
