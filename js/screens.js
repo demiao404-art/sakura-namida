@@ -195,6 +195,7 @@
       UI.resetScene();
       const ts = this.engine.titleState();
       Title.render(ts);
+      $("title-main").textContent = (Store.meta.perfect && this.cfg.完美結局後標題) || this.cfg.標題 || "櫻";
       // 標題畫面的音樂：跟著輪迴的階段改變（設定在 game-config.js 的「標題音樂」）
       const tm = this.cfg.標題音樂 || {};
       const m = Store.meta;

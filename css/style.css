@@ -561,15 +561,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #title-canvas { position: absolute; inset: 0; width: 1600px; height: 900px; }
 .title-block {
   position: absolute;
-  left: 150px;
-  top: 108px;
+  left: 240px;
+  top: 70px;
   display: flex;
   gap: 34px;
   align-items: flex-start;
 }
 .title-main {
   writing-mode: vertical-rl;
-  font-size: 230px;
+  font-size: 176px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.1em;
@@ -588,7 +588,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .title-menu {
   position: absolute;
-  left: 150px;
+  left: 240px;
   bottom: 86px;
   display: flex;
   flex-direction: column;
