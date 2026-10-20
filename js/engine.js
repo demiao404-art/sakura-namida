@@ -514,10 +514,10 @@
       if (items.length && items.every((i) => i.disabled)) items.forEach((i) => (i.disabled = false));
       if (!items.length) return;
 
-      // 絕望輪、希望輪：每一天都會重現，可是玩家只能在關鍵時刻選擇。
+      // 希望輪：每一天都會重現，可是玩家只能在關鍵時刻選擇（絕望輪的選擇全部由玩家決定）。
       // 不是關鍵的選擇，會自動選「最溫柔」的那一個，而且不算進「選錯」的紀錄。
       const isKey = (c.key && c.key.includes(phase)) || /^(絕望|希望)_/.test(c.label || "");
-      if ((phase === "絕望" || phase === "希望") && !isKey) {
+      if (phase === "希望" && !isKey) {
         let best = items[0], bv = -Infinity;
         for (const it of items) { const v = this.autoScore(it.opt); if (v > bv) { bv = v; best = it; } }
         this.applyEffects(best.opt.effects, best.opt.big);
@@ -570,11 +570,15 @@
         return this.exitToTitle({ from: "perfect" });
       }
 
-      if (phase === "絕望") {
+      // 絕望輪：只有走到結局 8（理想的道別）→「又一次？」（[結局 絕望]），才會進入希望輪。
+      // 其他結局照一般的死亡演出，回到標題之後，會再來一次絕望輪。
+      if (phase === "絕望" && endId === "絕望") {
         m.despairDone = true;
         Store.deleteSlot("auto");
         Store.save("ending");
         await this.ui.endingSequence("despair");
+        const cap = this.config.進入希望輪字幕 || {};
+        await this.ui.captions(cap.文字 ? [cap.文字] : [], { button: cap.按鈕 || "" });
         return this.exitToTitle({ from: "despair" });
       }
 
@@ -616,6 +620,10 @@
       Store.deleteSlot("auto");
       Store.save("ending");
       await this.ui.endingSequence("death", { isNew });
+      // 集滿最後一個結局、下一輪就要進入絕望輪的時候
+      if (isNew && phase === "一般" && m.endings.length >= this.endingsNeeded) {
+        await this.ui.captions(this.config.進入絕望輪字幕 || []);
+      }
       return this.exitToTitle({ from: "death", newPetal: isNew });
     }
 

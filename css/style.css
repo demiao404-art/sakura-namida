@@ -1002,3 +1002,20 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
   .choice.glitch span, .choice.glitch .noise { animation: none; }
   .choice.glitch span { text-shadow: 1px 0 rgba(255,70,110,.35), -1px 0 rgba(70,200,255,.35); }
 }
+
+/* 黑底字幕（進入絕望輪、進入希望輪） */
+.ending-text.caption { white-space: pre-line; font-size: 36px; letter-spacing: 0.35em; padding-left: 0.35em; max-width: 1300px; }
+.caption-btn {
+  position: absolute; left: 50%; top: 66%;
+  transform: translate(-50%, 10px); opacity: 0;
+  transition: opacity 1.4s ease, transform 1.4s ease;
+  min-width: 220px; font-size: 28px; letter-spacing: 0.4em; padding-left: calc(0.4em + 28px);
+}
+.caption-btn.on { opacity: 1; transform: translate(-50%, 0); }
+.caption-hint {
+  position: absolute; left: 50%; top: 70%; transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.5); font-size: 20px; opacity: 0; transition: opacity 1s ease;
+  animation: caption-bob 2s ease-in-out infinite;
+}
+.caption-hint.on { opacity: 1; }
+@keyframes caption-bob { 0%, 100% { margin-top: 0; } 50% { margin-top: 6px; } }

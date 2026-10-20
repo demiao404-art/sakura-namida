@@ -751,6 +751,59 @@
       layer.style.transition = "";
     },
 
+    // ---------- 黑底字幕（一頁一頁，點一下換頁；最後一頁可以有按鈕） ----------
+    async captions(pages, opts) {
+      pages = (pages || []).filter((p) => p && String(p).trim());
+      const button = opts && opts.button;
+      if (!pages.length) return;
+      const layer = $("ending-layer");
+      const txt = $("ending-text");
+      layer.style.transition = "opacity 1.2s ease";
+      layer.style.background = "#000";
+      txt.style.color = "";
+      txt.classList.add("caption");
+      layer.classList.add("on");
+      this.textbox.classList.add("hidden");
+      await sleep(900);
+      for (let i = 0; i < pages.length; i++) {
+        txt.textContent = pages[i];
+        void txt.offsetWidth;
+        txt.classList.add("on");
+        await sleep(1400);
+        const last = i === pages.length - 1;
+        if (last && button) {
+          const b = document.createElement("button");
+          b.className = "btn primary caption-btn";
+          b.textContent = button;
+          layer.append(b);
+          requestAnimationFrame(() => b.classList.add("on"));
+          b.focus();
+          await new Promise((r) => b.addEventListener("click", (e) => { e.stopPropagation(); AudioMgr.unlock(); r(); }, { once: true }));
+          b.classList.remove("on");
+          setTimeout(() => b.remove(), 800);
+        } else {
+          const hint = document.createElement("div");
+          hint.className = "caption-hint";
+          hint.textContent = "▼";
+          layer.append(hint);
+          setTimeout(() => hint.classList.add("on"), 1500);
+          await new Promise((r) => {
+            const done = (e) => { if (e) e.stopPropagation(); layer.removeEventListener("click", done); window.removeEventListener("keydown", key); r(); };
+            const key = (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); done(); } };
+            layer.addEventListener("click", done);
+            window.addEventListener("keydown", key);
+          });
+          hint.remove();
+        }
+        txt.classList.remove("on");
+        await sleep(1000);
+      }
+      txt.classList.remove("caption");
+      layer.classList.remove("on");
+      await sleep(900);
+      layer.style.transition = "";
+    },
+
     // ---------- 感情值提示（不顯示數字） ----------
     emotionHint(changes, big) {
       const E = this.cfg.感情值 || {};
