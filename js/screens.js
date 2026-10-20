@@ -187,6 +187,7 @@
         if (act === "settings") this.open("settings");
         if (act === "cloud") this.open("cloud");
         if (act === "gallery") this.open("gallery");
+        if (act === "afterword") this.open("afterword");
       });
     },
 
@@ -203,6 +204,8 @@
       AudioMgr.bgm((m.perfect ? tm.完美結局之後 : m.despairDone ? tm.絕望輪之後 : tm.平常) || null);
       document.querySelector('.tm[data-act="continue"]').disabled = !Store.getSlot("auto");
       $("tm-cloud").hidden = !Cloud.available() && !this.cfg.開發模式;
+      // 作者的話：希望結局（完美結局）達成之後，才出現在標題畫面
+      $("tm-afterword").hidden = !(Store.meta.perfect && (this.cfg.作者的話 || []).length);
       $("title-foot").textContent = this.cfg.開發模式 ? "開發模式　F2 開啟開發者工具" : "";
       this.showBase("title");
       if (Store.meta.innerUnlockedNotice) {
@@ -647,12 +650,6 @@
       const cr = el("button", "btn small", "工作人員名單");
       cr.addEventListener("click", async (e) => { e.stopPropagation(); await UI.credits(this.cfg.工作人員名單); });
       const btns = el("div", "row-btns");
-      // 作者的話：全部玩完（走到完美結局）之後才出現
-      if (Store.meta.perfect && (this.cfg.作者的話 || []).length) {
-        const aw = el("button", "btn small primary", "作者的話");
-        aw.addEventListener("click", (e) => { e.stopPropagation(); this.open("afterword"); });
-        btns.append(aw);
-      }
       btns.append(cr);
       head.append(btns);
       body.append(head);
