@@ -57,6 +57,7 @@
       const st = this.state || {};
       switch (name) {
         case "階段": return st.phase || this.currentPhase();
+        case "已改寫": return Store.meta.perfect ? 1 : 0;   // 走過完美結局（希望線改寫了一切）之後
         case "輪迴": return (m.loops || 0) + 1;
         case "花瓣": return (m.endings || []).length;
         case "天": return st.day || 0;
@@ -570,9 +571,12 @@
         Store.deleteSlot("auto");
         Store.save("ending");
         await this.ui.endingSequence("perfect");
-        if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "0"], ["生存可能", "？"]);
-        const pc = this.config.完美結局字幕;
-        if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
+        // 第一次走到完美結局時才演出「生存可能」的轉換和作者的字幕；改寫之後的重玩就不再重複
+        if (first) {
+          if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "0"], ["生存可能", "？"]);
+          const pc = this.config.完美結局字幕;
+          if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
+        }
         return this.exitToTitle({ from: "perfect" });
       }
 
