@@ -644,7 +644,7 @@
       list.forEach((e, i) => {
         const has = got.has(String(e.id));
         card({
-          no: e.id === "離開" ? "—" : "No." + pad(i + 1),
+          no: "No." + pad(i + 1),
           name: has ? e.名稱 : "？？？",
           text: has ? e.簡介 : "提示：" + e.提示,
           locked: !has,
