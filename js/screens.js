@@ -193,6 +193,10 @@
       UI.resetScene();
       const ts = this.engine.titleState();
       Title.render(ts);
+      // 標題畫面的音樂：跟著輪迴的階段改變（設定在 game-config.js 的「標題音樂」）
+      const tm = this.cfg.標題音樂 || {};
+      const m = Store.meta;
+      AudioMgr.bgm((m.perfect ? tm.完美結局之後 : m.despairDone ? tm.絕望輪之後 : tm.平常) || null);
       document.querySelector('.tm[data-act="continue"]').disabled = !Store.getSlot("auto");
       $("tm-cloud").hidden = !Cloud.available() && !this.cfg.開發模式;
       $("title-foot").textContent = this.cfg.開發模式 ? "開發模式　F2 開啟開發者工具" : "";
