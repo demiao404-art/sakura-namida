@@ -1108,3 +1108,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 /* 分級標示 */
 .rating-badge { margin-left: auto; padding: 6px 16px; border: 2px solid #d9534f; color: #d9534f; border-radius: 8px; font-size: 24px; font-weight: 700; letter-spacing: 0.15em; white-space: nowrap; }
 .warn-rating { font-weight: 700; color: #d9534f; }
+
+/* 黑幕中主角說的話 */
+.ending-text.caption.caption-voice { color: #f6d7df; letter-spacing: 0.2em; padding-left: 0.2em; }
+.caption-speaker { display: block; font-size: 22px; letter-spacing: 0.3em; color: rgba(246, 215, 223, 0.6); margin-bottom: 18px; }

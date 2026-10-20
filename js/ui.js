@@ -879,7 +879,8 @@
 
     // ---------- 黑底字幕（一頁一頁，點一下換頁；最後一頁可以有按鈕） ----------
     async captions(pages, opts) {
-      pages = (pages || []).filter((p) => p && String(p).trim());
+      const pageText = (p) => (p && typeof p === "object" ? p.文字 || "" : String(p || ""));
+      pages = (pages || []).filter((p) => pageText(p).trim());
       const button = opts && opts.button;
       if (!pages.length) return;
       const layer = $("ending-layer");
@@ -890,7 +891,7 @@
       txt.style.color = perfect ? "#5b3d49" : "";
       txt.style.textShadow = perfect ? "0 1px 10px rgba(255, 255, 255, 0.7)" : "";
       txt.classList.add("caption");
-      txt.classList.toggle("caption-long", pages.some((p) => String(p).length > 24));
+      txt.classList.toggle("caption-long", pages.some((p) => pageText(p).length > 24));
       txt.classList.toggle("caption-notice", !!(opts && opts.notice));
       const blackFirst = opts && opts.blackFirst;
       if (blackFirst) layer.style.transition = "none";
@@ -899,7 +900,14 @@
       if (blackFirst) { void layer.offsetWidth; layer.style.transition = "opacity 1.2s ease"; await sleep(blackFirst); }
       else await sleep(900);
       for (let i = 0; i < pages.length; i++) {
-        txt.textContent = pages[i];
+        const pg = pages[i];
+        txt.textContent = "";
+        txt.classList.toggle("caption-voice", !!(pg && typeof pg === "object"));
+        if (pg && typeof pg === "object") {
+          const who = pg.說話者 === "主角" ? (Store.meta.playerName || "我") : pg.說話者 || "";
+          if (who) { const n = document.createElement("span"); n.className = "caption-speaker"; n.textContent = who; txt.append(n); }
+          txt.append(document.createTextNode(pageText(pg)));
+        } else txt.textContent = pg;
         void txt.offsetWidth;
         txt.classList.add("on");
         await sleep(1400);
@@ -931,7 +939,7 @@
         txt.classList.remove("on");
         await sleep(1000);
       }
-      txt.classList.remove("caption", "caption-long", "caption-notice");
+      txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice");
       txt.style.color = "";
       txt.style.textShadow = "";
       layer.classList.remove("on");

@@ -31,7 +31,6 @@
       endings: [],          // 一般輪拿到過的結局編號
       endingLog: [],        // [{id, loop, at}]
       despairDone: false,
-      hopeIntroSeen: false, // 希望輪的開場字幕看過了沒
       perfect: false,
       greyed: [],           // 希望輪變灰的選項 id
       read: [],             // 已讀文字 key
@@ -99,7 +98,6 @@
       endings: union(lm.endings, rm.endings),
       endingLog: mergeLog(lm.endingLog, rm.endingLog),
       despairDone: lm.despairDone || rm.despairDone,
-      hopeIntroSeen: !!(lm.hopeIntroSeen || rm.hopeIntroSeen),
       perfect: lm.perfect || rm.perfect,
       greyed: union(lm.greyed, rm.greyed),
       read: union(lm.read, rm.read),

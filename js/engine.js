@@ -224,27 +224,31 @@
       this.state = this.freshState(phase);
       this.ui.resetScene();
       this.ui.backlog.length = 0;
-      // 第一次開始希望輪：純黑兩秒，然後是開場字幕
-      const m = Store.meta;
-      const intro = this.config.希望輪開場字幕;
-      if (phase === "希望" && !m.hopeIntroSeen && Array.isArray(intro) && intro.length) {
-        this.audio.bgm(null);
-        await this.ui.captions(intro, { blackFirst: 2000 });
-        m.hopeIntroSeen = true;
-        Store.save("notice");
-      }
+      if (phase === "希望") await this.hopeIntro();
       this.run();
     }
 
-    loadState(st) {
+    // 希望輪的每一次嘗試開始前：純黑兩秒，然後是開場字幕（最後一句是主角在黑幕中說的話）
+    async hopeIntro() {
+      const intro = this.config.希望輪開場字幕;
+      if (!Array.isArray(intro) || !intro.length) return;
+      this.audio.bgm(null);
+      await this.ui.captions(intro, { blackFirst: 2000 });
+    }
+
+    async loadState(st) {
       this.stop();
       this.state = clone(st);
+      // 希望輪選錯、回到標題之後，再試一次：先演出開場字幕
+      const retry = this.state.hopeRetry;
+      delete this.state.hopeRetry;
       this.state.fired = this.state.fired || [];
       this.state.calls = this.state.calls || [];
       for (const [k, v] of Object.entries(this.initialVars())) if (this.state.vars[k] === undefined) this.state.vars[k] = v;
       // 劇本修改過時，盡量回到原本的位置
       if (this.state.pc >= this.cmds.length) this.state.pc = 0;
       this.ui.backlog.length = 0;
+      if (retry) { this.ui.resetScene(); await this.hopeIntro(); }
       this.ui.restoreScene(this.state);
       this.audio.bgm(this.state.bgm);
       this.run();
@@ -631,16 +635,13 @@
           ns.dayMarks = marks;
           ns.phase = "希望";
           this.state = ns;
-          this.ui.backlog.length = 0;
-          this.ui.restoreScene(ns, true);
-          this.audio.bgm(ns.bgm);
         } else {
           this.state = this.freshState("希望");
-          this.ui.resetScene();
-          this.ui.backlog.length = 0;
         }
+        // 回到標題；按「繼續」再試一次時，會先演出希望輪的開場字幕，然後從那一天重新開始（選錯的選項已經變暗）
+        this.state.hopeRetry = true;
         this.autosave();
-        return; // 繼續主迴圈
+        return this.exitToTitle({ from: "hopeDeath" });
       }
 
       // 一般輪
