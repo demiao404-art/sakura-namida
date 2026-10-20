@@ -1019,3 +1019,5 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 }
 .caption-hint.on { opacity: 1; }
 @keyframes caption-bob { 0%, 100% { margin-top: 0; } 50% { margin-top: 6px; } }
+.ending-text.caption.caption-long { font-size: 32px; letter-spacing: 0.18em; padding-left: 0.18em; max-width: 1180px; line-height: 2.1; }
+.caption-hint.dark { color: rgba(91, 61, 73, 0.5); }

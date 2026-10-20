@@ -733,7 +733,7 @@
       } else if (type === "perfect") {
         pf.setLevel(2, true);
         await race(sleep(1200));
-        const cap = (this.cfg.完美結局字幕 || "").trim();
+        const cap = typeof this.cfg.完美結局字幕 === "string" ? this.cfg.完美結局字幕.trim() : "";
         if (cap) { txt.textContent = cap; txt.classList.add("on"); }
         await race(sleep(7000));
         pf.setLevel(0);
@@ -758,10 +758,13 @@
       if (!pages.length) return;
       const layer = $("ending-layer");
       const txt = $("ending-text");
+      const perfect = opts && opts.style === "perfect";
       layer.style.transition = "opacity 1.2s ease";
-      layer.style.background = "#000";
-      txt.style.color = "";
+      layer.style.background = perfect ? "linear-gradient(180deg, #fbe7ec 0%, #f6d7df 40%, #dfeadc 100%)" : "#000";
+      txt.style.color = perfect ? "#5b3d49" : "";
+      txt.style.textShadow = perfect ? "0 1px 10px rgba(255, 255, 255, 0.7)" : "";
       txt.classList.add("caption");
+      txt.classList.toggle("caption-long", pages.some((p) => String(p).length > 24));
       layer.classList.add("on");
       this.textbox.classList.add("hidden");
       await sleep(900);
@@ -783,7 +786,7 @@
           setTimeout(() => b.remove(), 800);
         } else {
           const hint = document.createElement("div");
-          hint.className = "caption-hint";
+          hint.className = "caption-hint" + (perfect ? " dark" : "");
           hint.textContent = "▼";
           layer.append(hint);
           setTimeout(() => hint.classList.add("on"), 1500);
@@ -798,7 +801,9 @@
         txt.classList.remove("on");
         await sleep(1000);
       }
-      txt.classList.remove("caption");
+      txt.classList.remove("caption", "caption-long");
+      txt.style.color = "";
+      txt.style.textShadow = "";
       layer.classList.remove("on");
       await sleep(900);
       layer.style.transition = "";

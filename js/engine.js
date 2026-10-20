@@ -567,6 +567,8 @@
         Store.deleteSlot("auto");
         Store.save("ending");
         await this.ui.endingSequence("perfect");
+        const pc = this.config.完美結局字幕;
+        if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
         return this.exitToTitle({ from: "perfect" });
       }
 
