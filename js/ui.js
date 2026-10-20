@@ -80,6 +80,55 @@
       this.renderStats();
     },
 
+    // ---------- 右上角的「生存可能」 ----------
+    // 一般輪：？？？？：0%　→ 集滿所有結局時，用雜訊特效變成「生存可能：0%」
+    // 絕望輪、希望輪：生存可能：0%　→ 走到完美結局時，變成「生存可能：？%」
+    survivalText(phase) {
+      const m = Store.meta;
+      if (m.perfect) return ["生存可能", "？"];
+      if (phase === "絕望" || phase === "希望") return ["生存可能", "0"];
+      const need = window.__engine ? window.__engine.endingsNeeded : 99;
+      return (m.endings || []).length >= need ? ["生存可能", "0"] : ["？？？？", "0"];
+    },
+    setSurvival(label, val) {
+      const box = $("survival"); if (!box) return;
+      box.querySelector(".sv-label").textContent = label;
+      box.querySelector(".sv-val").textContent = val;
+    },
+    updateSurvival(phase) {
+      if (phase) this._svPhase = phase;
+      const box = $("survival"); if (!box) return;
+      if (!box.classList.contains("reveal")) {
+        const [l, v] = this.survivalText(this._svPhase);
+        this.setSurvival(l, v);
+      }
+      box.hidden = !(this.playing || box.classList.contains("reveal"));
+    },
+    // 雜訊特效：從 from 變成 to（例如 ["？？？？","0"] → ["生存可能","0"]）
+    async survivalReveal(from, to) {
+      const box = $("survival"); if (!box) return;
+      const noise = "？＃％＊※▒░▓ΔΣ∅生存可能０１２３４５６７８９";
+      const scramble = (n) => Array.from({ length: n }, () => noise[Math.floor(Math.random() * noise.length)]).join("");
+      box.classList.add("reveal");
+      box.hidden = false;
+      this.setSurvival(from[0], from[1]);
+      await sleep(1600);
+      box.classList.add("glitching");
+      const t0 = performance.now();
+      while (performance.now() - t0 < 2600) {
+        const k = (performance.now() - t0) / 2600;
+        const lab = to[0].split("").map((c, i) => (Math.random() < k * 1.1 ? c : scramble(1))).join("");
+        const val = Math.random() < k ? to[1] : scramble(1);
+        this.setSurvival(Math.random() < 0.15 ? scramble(Math.max(from[0].length, to[0].length)) : lab, val);
+        await sleep(70 + Math.random() * 60);
+      }
+      this.setSurvival(to[0], to[1]);
+      box.classList.remove("glitching");
+      await sleep(2200);
+      box.classList.remove("reveal");
+      box.hidden = !this.playing;
+    },
+
     // ---------- 左上角的感情值 ----------
     updateStats(vars) { this._statVars = vars; this.renderStats(); },
     renderStats() {
@@ -234,6 +283,7 @@
       this.stage.classList.toggle("playing", on);
       if (!on) { this.stopModes(); this.ctrlHeld = false; this.toggleHide(false); }
       this.renderStats();
+      this.updateSurvival();
     },
 
     // ---------- 背景 ----------

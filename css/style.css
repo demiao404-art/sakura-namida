@@ -1063,3 +1063,26 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .gallery-card.special.hope .gc-name { color: #cfe8cf; }
 .gallery-card.special.perfect { grid-column: 1 / -1; background: linear-gradient(90deg, rgba(251, 231, 236, 0.18), rgba(223, 234, 220, 0.18)); border-color: rgba(247, 198, 212, 0.5); }
 .gallery-card.special.perfect .gc-name { color: #f7c6d4; }
+
+/* 右上角的「生存可能」 */
+#survival {
+  position: absolute; right: 30px; top: 22px; z-index: 6;
+  padding: 8px 16px; border-radius: 8px;
+  background: rgba(16, 10, 18, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 19px; letter-spacing: 0.18em; color: rgba(245, 236, 240, 0.85);
+  pointer-events: none; transition: opacity 0.3s ease, transform 0.6s ease, font-size 0.6s ease;
+  white-space: nowrap;
+}
+#survival[hidden] { display: none; }
+#survival .sv-val, #survival .sv-pct { font-family: var(--latin); letter-spacing: 0.05em; }
+#survival .sv-val { color: #e9a3b6; margin-left: 2px; }
+#stage.ui-hidden #survival:not(.reveal) { opacity: 0; }
+#survival.reveal { z-index: 45; font-size: 26px; background: rgba(0, 0, 0, 0.35); border-color: rgba(233, 163, 182, 0.35); }
+#survival.glitching span { display: inline-block; animation: sv-glitch 0.18s steps(1, end) infinite; }
+@keyframes sv-glitch {
+  0%   { transform: translate(0, 0); text-shadow: 2px 0 rgba(255,70,110,.7), -2px 0 rgba(70,200,255,.7); }
+  33%  { transform: translate(-2px, 1px) skewX(-8deg); text-shadow: -3px 0 rgba(255,70,110,.6); clip-path: inset(0 0 45% 0); }
+  66%  { transform: translate(2px, -1px); text-shadow: 3px 0 rgba(70,200,255,.6); clip-path: inset(50% 0 0 0); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { #survival.glitching span { animation: none; } }

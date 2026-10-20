@@ -292,6 +292,7 @@
     // ---------------- 主迴圈 ----------------
     async run() {
       if (this.ui.updateStats && this.state) this.ui.updateStats(this.state.vars);
+      if (this.ui.updateSurvival && this.state) this.ui.updateSurvival(this.state.phase);
       const id = ++this.runId;
       this.running = true;
       try {
@@ -569,6 +570,7 @@
         Store.deleteSlot("auto");
         Store.save("ending");
         await this.ui.endingSequence("perfect");
+        if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "0"], ["生存可能", "？"]);
         const pc = this.config.完美結局字幕;
         if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
         return this.exitToTitle({ from: "perfect" });
@@ -626,6 +628,7 @@
       await this.ui.endingSequence("death", { isNew });
       // 集滿最後一個結局、下一輪就要進入絕望輪的時候
       if (isNew && phase === "一般" && m.endings.length >= this.endingsNeeded) {
+        if (this.ui.survivalReveal) await this.ui.survivalReveal(["？？？？", "0"], ["生存可能", "0"]);
         await this.ui.captions(this.config.進入絕望輪字幕 || []);
       }
       return this.exitToTitle({ from: "death", newPetal: isNew });
