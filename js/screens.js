@@ -633,7 +633,12 @@
       const list = G.結局 || [];
       const got = new Set(m.endings || []);
       const need = this.engine.endingsNeeded;
-      body.append(el("p", "gallery-count", `花瓣　${Math.min(got.size, need)} ／ ${need}`));
+      const head = el("div", "gallery-head");
+      head.append(el("p", "gallery-count", `花瓣　${Math.min(got.size, need)} ／ ${need}`));
+      const cr = el("button", "btn small", "工作人員名單");
+      cr.addEventListener("click", async (e) => { e.stopPropagation(); await UI.credits(this.cfg.工作人員名單); });
+      head.append(cr);
+      body.append(head);
       const grid = el("div", "gallery-grid");
       const card = (opts) => {
         const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.special ? " special " + opts.special : ""));

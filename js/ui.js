@@ -836,6 +836,47 @@
       layer.style.transition = "";
     },
 
+    // ---------- 工作人員名單（慢慢往上捲，點一下可以結束） ----------
+    async credits(list) {
+      if (!list || !list.length) return;
+      const layer = $("ending-layer");
+      const roll = document.createElement("div");
+      roll.className = "credits-roll";
+      const inner = document.createElement("div");
+      inner.className = "credits-inner";
+      list.forEach((sec, i) => {
+        const [role, ...names] = sec;
+        const b = document.createElement("div");
+        b.className = "cr-sec" + (!role && i === 0 ? " cr-title" : !role ? " cr-end" : "");
+        if (role) { const r = document.createElement("div"); r.className = "cr-role"; r.textContent = role; b.append(r); }
+        names.forEach((n) => { const d = document.createElement("div"); d.className = "cr-name"; d.textContent = n; b.append(d); });
+        inner.append(b);
+      });
+      roll.append(inner);
+      layer.style.transition = "opacity 1.2s ease";
+      layer.style.background = "#0b080d";
+      layer.append(roll);
+      layer.classList.add("on");
+      this.textbox.classList.add("hidden");
+      await sleep(400);
+      const H = inner.offsetHeight, view = 900;
+      const dur = Math.max(26000, (H + view) * 24);
+      inner.style.transform = `translateY(${view}px)`;
+      void inner.offsetWidth;
+      inner.style.transition = `transform ${dur}ms linear`;
+      inner.style.transform = `translateY(${-H}px)`;
+      await new Promise((r) => {
+        const t = setTimeout(done, dur + 300);
+        function done(e) { if (e && e.stopPropagation) e.stopPropagation(); clearTimeout(t); layer.removeEventListener("click", done); window.removeEventListener("keydown", key); r(); }
+        const key = (e) => { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); done(); } };
+        setTimeout(() => { layer.addEventListener("click", done); window.addEventListener("keydown", key); }, 800);
+      });
+      layer.classList.remove("on");
+      await sleep(1000);
+      roll.remove();
+      layer.style.transition = "";
+    },
+
     // ---------- 黑底字幕（一頁一頁，點一下換頁；最後一頁可以有按鈕） ----------
     async captions(pages, opts) {
       pages = (pages || []).filter((p) => p && String(p).trim());
