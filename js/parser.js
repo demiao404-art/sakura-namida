@@ -185,7 +185,7 @@
       if (c.t === "label" || c.t === "choice") { if (c.t === "choice") lastLine = null; continue; }
       if ((c.t === "say" || c.t === "narr") && !c.inner) { lastLine = c; continue; }
       if (c.inner && (c.t === "say" || c.t === "narr")) {
-        if (lastLine) (lastLine.innerLines = lastLine.innerLines || []).push({ t: c.t, who: c.who, text: c.text });
+        if (lastLine) (lastLine.innerLines = lastLine.innerLines || []).push({ t: c.t, who: c.who, text: c.text, onlyIf: c.onlyIf || null, onlyPhase: c.onlyPhase || null });
         else errors.push({ file: c.at.file, line: c.at.line, msg: "[心聲] 前面要有一句台詞或旁白，愛心才知道要掛在哪裡" });
       }
     }

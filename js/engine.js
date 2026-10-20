@@ -365,7 +365,10 @@
           this.lastLine = (name ? "【" + name + "】" : "") + text;
           let inner = null;
           if (c.innerLines && this.innerVoiceOn()) {
-            inner = c.innerLines.map((l) => {
+            inner = c.innerLines.filter((l) => {
+              if (l.onlyPhase && (l.onlyPhase === "非希望" ? st.phase === "希望" : l.onlyPhase !== st.phase)) return false;
+              return !l.onlyIf || this.evalCond(l.onlyIf);
+            }).map((l) => {
               const isMe = l.who === "我" || l.who === "主角" || l.who === "{名字}";
               const nm = l.t === "say" ? (isMe ? (Store.meta.playerName || "我") : this.interpolate(l.who)) : null;
               const col = l.t === "say" ? (isMe ? this.config.玩家名字顏色 : ((this.config.角色 || {})[l.who] || {}).顏色) : null;
