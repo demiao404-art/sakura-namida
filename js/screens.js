@@ -623,7 +623,7 @@
 
     // ---------- 結局圖鑑 ----------
     // 拿到的結局顯示名字和一句話；還沒拿到的只顯示提示。
-    // 集滿所有結局之後，會出現「絕望線」；走過絕望線之後，會出現「希望線」。
+    // 集滿所有結局之後，會出現「絕望線」；希望線要走到完美結局之後才會出現（之前不給任何提示）。
     renderGallery() {
       const body = $("gallery-body");
       body.textContent = "";
@@ -656,7 +656,8 @@
         const D = G.絕望線 || {}, H = G.希望線 || {}, P = G.完美結局 || {};
         const add = (o) => { const c = el("div", "gallery-card special " + o.cls); c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text)); sp.append(c); };
         add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : (D.出現 || "") });
-        if (m.despairDone) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: m.perfect ? (H.走過 || "") : (H.出現 || "") });
+        // 希望線：走完之前完全不提示，走到完美結局之後才出現
+        if (m.perfect) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: H.走過 || "" });
         if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "" });
         body.append(sp);   // 絕望線、希望線放在最上面，集滿的時候一眼就看得到
       }
