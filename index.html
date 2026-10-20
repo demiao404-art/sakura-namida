@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>櫻</title>
+<meta name="theme-color" content="#0d090f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Noto+Serif+TC:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 共用圖示 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-petal" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 22.5C6.2 18 3.6 12.2 6.4 5.4 7.6 2.6 10.4 2.4 12 5.6 13.6 2.4 16.4 2.6 17.6 5.4 20.4 12.2 17.8 18 12 22.5Z"/>
+    </symbol>
+    <symbol id="i-flower" viewBox="0 0 24 24">
+      <g fill="currentColor">
+        <path id="fp" d="M12 11.6C9.6 9.9 9 6.6 10.2 3.7c.6-1.4 1.4-1.3 1.8-.1.4-1.2 1.2-1.3 1.8.1 1.2 2.9.6 6.2-1.8 7.9Z"/>
+        <use href="#fp" transform="rotate(72 12 12)"/>
+        <use href="#fp" transform="rotate(144 12 12)"/>
+        <use href="#fp" transform="rotate(216 12 12)"/>
+        <use href="#fp" transform="rotate(288 12 12)"/>
+        <circle cx="12" cy="12" r="1.4" fill="currentColor" opacity=".5"/>
+      </g>
+    </symbol>
+    <symbol id="i-flower-line" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1">
+        <path id="fpl" d="M12 11.6C9.6 9.9 9 6.6 10.2 3.7c.6-1.4 1.4-1.3 1.8-.1.4-1.2 1.2-1.3 1.8.1 1.2 2.9.6 6.2-1.8 7.9Z"/>
+        <use href="#fpl" transform="rotate(72 12 12)"/>
+        <use href="#fpl" transform="rotate(144 12 12)"/>
+        <use href="#fpl" transform="rotate(216 12 12)"/>
+        <use href="#fpl" transform="rotate(288 12 12)"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="viewport">
+  <div id="stage" aria-live="polite">
+
+    <!-- 遊戲畫面 -->
+    <div id="bg-layer" class="layer"></div>
+    <canvas id="rain-canvas" class="layer" width="1600" height="900"></canvas>
+    <div id="char-layer" class="layer"></div>
+    <canvas id="petal-canvas" class="layer" width="1600" height="900"></canvas>
+    <div id="fx-layer" class="layer"></div>
+
+    <div id="textbox" class="hidden">
+      <div class="tb-bg"></div>
+      <svg class="tb-orn left" viewBox="0 0 24 24"><use href="#i-flower-line"/></svg>
+      <svg class="tb-orn right" viewBox="0 0 24 24"><use href="#i-flower-line"/></svg>
+      <div class="tb-name" id="tb-name"></div>
+      <button class="tb-heart" id="tb-heart" hidden aria-label="聽見櫻的心聲"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.6 2.9 4.5 6.7 4.5c2.2 0 3.6 1.3 4.3 2.5h2c.7-1.2 2.1-2.5 4.3-2.5 3.8 0 5.8 4.1 4.3 7.3C19.5 16.4 12 21 12 21Z"/></svg></button>
+      <div class="tb-text" id="tb-text"></div>
+    </div>
+
+    <nav id="quickmenu" aria-label="遊戲功能" hidden>
+      <button class="qm" data-act="menu"><svg class="flower"><use href="#i-flower"/></svg>Menu<span class="ic">≡</span></button>
+      <button class="qm" data-act="auto"><svg class="flower"><use href="#i-flower"/></svg>Auto<span class="ic">▷</span></button>
+      <button class="qm" data-act="skip"><svg class="flower"><use href="#i-flower"/></svg>Skip<span class="ic">▷▷</span></button>
+      <button class="qm" data-act="log"><svg class="flower"><use href="#i-flower"/></svg>Log<span class="ic">☰</span></button>
+      <button class="qm" data-act="qsave"><svg class="flower"><use href="#i-flower"/></svg>Q.Save<span class="ic">◇</span></button>
+      <button class="qm" data-act="qload"><svg class="flower"><use href="#i-flower"/></svg>Q.Load<span class="ic">◆</span></button>
+    </nav>
+    <div id="mode-badge"></div>
+
+    <div id="choice-layer" role="group" aria-label="選項"></div>
+
+    <div id="daycard" aria-hidden="true">
+      <div class="dc-main"><span>第</span><span class="dc-num" id="dc-num">1</span><span>天</span></div>
+      <div class="dc-line"></div>
+      <div class="dc-sub" id="dc-sub"></div>
+    </div>
+
+    <div id="ending-layer">
+      <canvas id="ending-canvas" width="1600" height="900"></canvas>
+      <div class="ending-text" id="ending-text"></div>
+    </div>
+
+    <!-- 內容警告 -->
+    <section id="screen-warning" class="screen" aria-labelledby="warn-title">
+      <div class="warn-wrap">
+        <div class="warn-head">
+          <h1 id="warn-title"></h1>
+          <span class="en">Content Warning</span>
+        </div>
+        <div class="warn-text scroll" id="warn-text" tabindex="0"></div>
+        <div class="warn-foot">
+          <label class="check disabled" id="warn-check-wrap">
+            <input type="checkbox" id="warn-check" disabled>
+            <span class="box"></span>
+            <span id="warn-check-text"></span>
+          </label>
+          <span class="warn-hint" id="warn-hint">請先將內容閱讀到最後</span>
+          <button class="btn primary" id="warn-ok" disabled>進入遊戲</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 標題 -->
+    <section id="screen-title" class="screen">
+      <canvas id="title-canvas" width="1600" height="900"></canvas>
+      <div class="title-block">
+        <div class="title-main" id="title-main"></div>
+        <div class="title-sub" id="title-sub"></div>
+      </div>
+      <nav class="title-menu" aria-label="主選單">
+        <button class="tm" data-act="start"><svg><use href="#i-petal"/></svg>開始<span class="en">Start</span></button>
+        <button class="tm" data-act="continue"><svg><use href="#i-petal"/></svg>繼續<span class="en">Continue</span></button>
+        <button class="tm" data-act="load"><svg><use href="#i-petal"/></svg>讀取<span class="en">Load</span></button>
+        <button class="tm" data-act="settings"><svg><use href="#i-petal"/></svg>設定<span class="en">Config</span></button>
+        <button class="tm" data-act="cloud" id="tm-cloud" hidden><svg><use href="#i-petal"/></svg>雲端存檔<span class="en">Account</span></button>
+      </nav>
+      <div class="title-foot" id="title-foot"></div>
+    </section>
+
+    <!-- 名字 -->
+    <section id="screen-name" class="screen">
+      <form class="name-wrap" id="name-form" autocomplete="off">
+        <h2>主角的名字</h2>
+        <p>和櫻同班、坐在她旁邊的女孩。<br>請為她取一個名字。</p>
+        <input class="name-input" id="name-input" maxlength="8" placeholder="輸入名字" aria-label="主角的名字">
+        <div class="name-err" id="name-err" role="alert"></div>
+        <button class="btn primary" type="submit">決定</button>
+      </form>
+    </section>
+
+    <!-- 遊戲選單 -->
+    <section id="screen-menu" class="screen panel-screen">
+      <div class="menu-list">
+        <button class="menu-item" data-act="resume">繼續遊戲<span class="en">Resume</span></button>
+        <button class="menu-item" data-act="save">存檔<span class="en">Save</span></button>
+        <button class="menu-item" data-act="load">讀取<span class="en">Load</span></button>
+        <button class="menu-item" data-act="log">回顧<span class="en">Log</span></button>
+        <button class="menu-item" data-act="settings">設定<span class="en">Config</span></button>
+        <button class="menu-item" data-act="title">回到標題<span class="en">Title</span></button>
+      </div>
+    </section>
+
+    <!-- 存檔／讀取 -->
+    <section id="screen-saves" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title" id="saves-title">存檔</div>
+        <div class="panel-en" id="saves-en">Save</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body">
+        <div class="tabs" id="saves-tabs" role="tablist"></div>
+        <div id="saves-content"></div>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section id="screen-settings" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title">設定</div>
+        <div class="panel-en">Config</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body scroll" id="settings-body"></div>
+    </section>
+
+    <!-- 回顧 -->
+    <section id="screen-log" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title">回顧</div>
+        <div class="panel-en">Log</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body">
+        <div class="log-list scroll" id="log-list"></div>
+      </div>
+    </section>
+
+    <!-- 雲端存檔 -->
+    <section id="screen-cloud" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title">雲端存檔</div>
+        <div class="panel-en">Account</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body" id="cloud-body"></div>
+    </section>
+
+    <!-- 開發者工具 -->
+    <section id="screen-dev" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title">開發者工具</div>
+        <div class="panel-en">Developer</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body scroll" id="dev-body"></div>
+    </section>
+
+    <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <h3 class="modal-title" id="modal-title"></h3>
+        <p class="modal-text" id="modal-text"></p>
+        <div class="modal-btns" id="modal-btns"></div>
+      </div>
+    </div>
+
+    <div id="toast" role="status"></div>
+  </div>
+</div>
+
+<div id="rotate-hint">將手機轉為橫向，可以看得更清楚</div>
+<div id="loading">載入中</div>
+
+<script src="config/game-config.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/petals.js"></script>
+<script src="js/rain.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/title.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
