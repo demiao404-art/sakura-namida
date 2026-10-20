@@ -186,6 +186,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .inner-line { animation: innerIn 600ms ease both; }
 @keyframes innerIn { from { opacity: 0; letter-spacing: 0.12em; } to { opacity: 1; } }
 .log-item.inner .log-text { color: #f2b6c8; }
+.log-item.inner .log-name::before { content: "♥ "; color: #f2b6c8; font-size: 0.8em; }
 .tb-text {
   position: absolute;
   left: 352px;

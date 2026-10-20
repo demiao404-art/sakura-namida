@@ -546,10 +546,11 @@
       const saved = document.createDocumentFragment();
       while (this.tbText.firstChild) saved.append(this.tbText.firstChild);
       this.innerMode = {
-        i: -1, lines: l.inner, saved,
+        i: -1, lines: l.inner, saved, logged: !!l.innerLogged,
         name: this.tbName.textContent, color: this.tbName.style.getPropertyValue("--name-color"),
         narr: this.tbText.classList.contains("narr"),
       };
+      l.innerLogged = true;
       this.textbox.classList.add("inner");
       this.heart.hidden = true;
       this.nextInner();
@@ -570,7 +571,8 @@
       const next = document.createElement("span");
       next.className = "tb-next on";
       this.tbText.append(span, next);
-      this.backlog.push({ name: ln.name, color: ln.color, text: ln.text, inner: true });
+      // 第一次展開時記進回顧；重看同一段心聲時不重複記
+      if (!m.logged) this.backlog.push({ name: ln.name, color: ln.color, text: ln.text, inner: true });
     },
     closeInner(silent) {
       const m = this.innerMode;
