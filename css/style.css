@@ -1103,3 +1103,4 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .gallery-head .row-btns { display: flex; gap: 12px; }
 .afterword { max-width: 980px; margin: 10px auto 40px; }
 .afterword p { font-size: 24px; line-height: 2.1; letter-spacing: 0.08em; margin: 0 0 1.4em; white-space: pre-line; }
+.ending-text.caption.caption-notice { font-size: 26px; letter-spacing: 0.12em; padding-left: 0.12em; line-height: 2; max-width: 1100px; color: rgba(245, 236, 240, 0.9); }

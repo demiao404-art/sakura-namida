@@ -553,6 +553,12 @@
       return v;
     }
 
+    // 每一次櫻死亡之後的重要聲明
+    async deathNotice() {
+      const t = this.config.死亡後聲明;
+      if (t && this.ui.captions) await this.ui.captions([t], { notice: true });
+    }
+
     async doEnding(endId, id) {
       const st = this.state;
       const m = Store.meta;
@@ -588,6 +594,7 @@
         Store.deleteSlot("auto");
         Store.save("ending");
         await this.ui.endingSequence("despair");
+        await this.deathNotice();
         const cap = this.config.進入希望輪字幕 || {};
         await this.ui.captions(cap.文字 ? [cap.文字] : [], { button: cap.按鈕 || "" });
         return this.exitToTitle({ from: "despair" });
@@ -602,6 +609,7 @@
         if (target && !m.greyed.includes(target.oid)) m.greyed.push(target.oid);
         Store.save("ending");
         await this.ui.endingSequence("hopeDeath");
+        await this.deathNotice();
         if (id !== this.runId) throw { cancelled: true };
 
         const fromDay = this.config.希望輪重來 !== "開頭" && target ? target.day : 0;
@@ -631,6 +639,7 @@
       Store.deleteSlot("auto");
       Store.save("ending");
       await this.ui.endingSequence("death", { isNew });
+      await this.deathNotice();
       // 集滿最後一個結局、下一輪就要進入絕望輪的時候
       if (isNew && phase === "一般" && m.endings.length >= this.endingsNeeded) {
         if (this.ui.survivalReveal) await this.ui.survivalReveal(["？？？？", "0"], ["生存可能", "0"]);

@@ -891,6 +891,7 @@
       txt.style.textShadow = perfect ? "0 1px 10px rgba(255, 255, 255, 0.7)" : "";
       txt.classList.add("caption");
       txt.classList.toggle("caption-long", pages.some((p) => String(p).length > 24));
+      txt.classList.toggle("caption-notice", !!(opts && opts.notice));
       layer.classList.add("on");
       this.textbox.classList.add("hidden");
       await sleep(900);
@@ -927,7 +928,7 @@
         txt.classList.remove("on");
         await sleep(1000);
       }
-      txt.classList.remove("caption", "caption-long");
+      txt.classList.remove("caption", "caption-long", "caption-notice");
       txt.style.color = "";
       txt.style.textShadow = "";
       layer.classList.remove("on");
