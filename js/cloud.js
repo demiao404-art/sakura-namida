@@ -170,6 +170,32 @@
       this.refresh();
     },
 
+    // 刪除這個帳號在雲端的所有資料（本機進度保留），按兩次才會執行
+    async deleteCloud(btn) {
+      if (!this.user || this.busy) return;
+      if (!btn.dataset.confirm) {
+        btn.dataset.confirm = "1";
+        btn.textContent = "確定刪除？再按一次";
+        setTimeout(() => { if (btn.isConnected) { delete btn.dataset.confirm; btn.textContent = "刪除雲端資料"; } }, 4000);
+        return;
+      }
+      this.busy = true;
+      clearTimeout(this._t);
+      try {
+        const slots = await this.slotsRef().get();
+        await Promise.all(slots.docs.map((d) => d.ref.delete()));
+        await this.docRef().delete();
+        this._pushed = {};
+        await this.auth.signOut();
+        UI.toast("雲端資料已刪除（這台裝置上的進度仍保留）");
+      } catch (e) {
+        console.warn(e);
+        this.error = "刪除失敗：" + (e && e.message ? e.message : e);
+      }
+      this.busy = false;
+      this.refresh();
+    },
+
     refresh() {
       const body = document.getElementById("cloud-body");
       if (body && Screens.stack && Screens.stack.includes("cloud")) this.render(body);
@@ -196,6 +222,8 @@
       const row = document.createElement("div");
       row.className = "row-btns";
 
+      const privacy = () => p("隱私說明：登入後，雲端只會保存你的 Google 帳號識別碼、電子郵件，以及遊戲進度與存檔，只用來讓你在不同裝置接著玩，不會用在其他地方，也不會提供給任何人。你可以隨時按「刪除雲端資料」把它們全部刪除。", "note");
+
       if (this.status === "loading") {
         h.textContent = "連線中";
         p("正在連接雲端服務……");
@@ -215,7 +243,11 @@
         s.addEventListener("click", () => this.sync(false));
         const o = document.createElement("button"); o.className = "btn small"; o.textContent = "登出";
         o.addEventListener("click", () => this.signOut());
-        row.append(s, o);
+        const d = document.createElement("button"); d.className = "btn small"; d.textContent = "刪除雲端資料";
+        d.disabled = this.busy;
+        d.addEventListener("click", () => this.deleteCloud(d));
+        row.append(s, o, d);
+        privacy();
       } else {
         h.textContent = "登入以保存進度";
         p("用 Google 帳號登入後，輪迴、花瓣和存檔都會保存在雲端。即使清除瀏覽器資料、換手機或換電腦，也能從原本的地方接著玩。");
@@ -223,6 +255,7 @@
         const b = document.createElement("button"); b.className = "btn primary"; b.textContent = "使用 Google 登入";
         b.addEventListener("click", () => this.signIn());
         row.append(b);
+        privacy();
       }
       wrap.append(row);
       if (this.error && this.status !== "error") p(this.error, "note err");

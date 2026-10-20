@@ -107,6 +107,11 @@
       $("warn-title").textContent = W.標題 || "內容警告";
       $("warn-check-text").textContent = W.勾選文字 || "我已閱讀並理解以上內容";
       const box = $("warn-text");
+      if (W.分級) {
+        const head = document.querySelector(".warn-head");
+        if (head && !head.querySelector(".rating-badge")) head.append(el("span", "rating-badge", W.分級.級別));
+        box.append(el("p", "warn-rating", W.分級.說明 || ""));
+      }
       (W.內文 || []).forEach((p) => box.append(el("p", null, p)));
       if (W.求助資訊 && W.求助資訊.length) {
         const list = el("div", "helplines");
