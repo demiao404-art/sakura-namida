@@ -114,6 +114,7 @@
         <button class="tm" data-act="start"><svg><use href="#i-petal"/></svg>開始<span class="en">Start</span></button>
         <button class="tm" data-act="continue"><svg><use href="#i-petal"/></svg>繼續<span class="en">Continue</span></button>
         <button class="tm" data-act="load"><svg><use href="#i-petal"/></svg>讀取<span class="en">Load</span></button>
+        <button class="tm" data-act="gallery"><svg><use href="#i-petal"/></svg>結局<span class="en">Endings</span></button>
         <button class="tm" data-act="settings"><svg><use href="#i-petal"/></svg>設定<span class="en">Config</span></button>
         <button class="tm" data-act="cloud" id="tm-cloud" hidden><svg><use href="#i-petal"/></svg>雲端存檔<span class="en">Account</span></button>
       </nav>
@@ -179,6 +180,15 @@
     </section>
 
     <!-- 雲端存檔 -->
+    <section id="screen-gallery" class="screen panel-screen">
+      <div class="panel-head">
+        <div class="panel-title">結局</div>
+        <div class="panel-en">Endings</div>
+        <button class="panel-close" data-close>返回</button>
+      </div>
+      <div class="panel-body scroll" id="gallery-body"></div>
+    </section>
+
     <section id="screen-cloud" class="screen panel-screen">
       <div class="panel-head">
         <div class="panel-title">雲端存檔</div>

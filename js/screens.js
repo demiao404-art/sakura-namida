@@ -9,7 +9,7 @@
   const pad = (n) => String(n).padStart(2, "0");
   const fmtTime = (t) => { const d = new Date(t); return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 
-  const OVERLAYS = ["menu", "saves", "settings", "log", "cloud", "dev", "warning"];
+  const OVERLAYS = ["menu", "saves", "settings", "log", "cloud", "gallery", "dev", "warning"];
 
   const Screens = {
     stack: [],
@@ -21,7 +21,7 @@
       this.script = script;
 
       document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); this.closeTop(); }));
-      ["screen-menu", "screen-saves", "screen-settings", "screen-log", "screen-cloud", "screen-dev"].forEach((id) =>
+      ["screen-menu", "screen-saves", "screen-settings", "screen-log", "screen-cloud", "screen-gallery", "screen-dev"].forEach((id) =>
         $(id).addEventListener("click", (e) => e.stopPropagation()));
 
       this.initWarning();
@@ -48,6 +48,7 @@
       if (name === "settings") this.renderSettings();
       if (name === "log") this.renderLog();
       if (name === "cloud") this.renderCloud();
+      if (name === "gallery") this.renderGallery();
       if (name === "dev") this.renderDev();
       if (name === "warning") this.renderWarning(true);
       this.stack.push(name);
@@ -184,6 +185,7 @@
         if (act === "load") this.open("saves", { mode: "load" });
         if (act === "settings") this.open("settings");
         if (act === "cloud") this.open("cloud");
+        if (act === "gallery") this.open("gallery");
       });
     },
 
@@ -618,6 +620,48 @@
 
     // ---------- 雲端 ----------
     renderCloud() { Cloud.render($("cloud-body")); },
+
+    // ---------- 結局圖鑑 ----------
+    // 拿到的結局顯示名字和一句話；還沒拿到的只顯示提示。
+    // 集滿所有結局之後，會出現「絕望線」；走過絕望線之後，會出現「希望線」。
+    renderGallery() {
+      const body = $("gallery-body");
+      body.textContent = "";
+      const G = this.cfg.結局圖鑑 || {};
+      const m = Store.meta;
+      const list = G.結局 || [];
+      const got = new Set(m.endings || []);
+      const need = this.engine.endingsNeeded;
+      body.append(el("p", "gallery-count", `花瓣　${Math.min(got.size, need)} ／ ${need}`));
+      const grid = el("div", "gallery-grid");
+      const card = (opts) => {
+        const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.special ? " special " + opts.special : ""));
+        c.append(el("div", "gc-no", opts.no || ""));
+        c.append(el("div", "gc-name", opts.name));
+        c.append(el("div", "gc-text", opts.text || ""));
+        grid.append(c);
+      };
+      list.forEach((e, i) => {
+        const has = got.has(String(e.id));
+        card({
+          no: e.id === "離開" ? "—" : "No." + pad(i + 1),
+          name: has ? e.名稱 : "？？？",
+          text: has ? e.簡介 : "提示：" + e.提示,
+          locked: !has,
+        });
+      });
+      const all = got.size >= need;
+      if (all || m.despairDone || m.perfect) {
+        const sp = el("div", "gallery-grid special-grid");
+        const D = G.絕望線 || {}, H = G.希望線 || {}, P = G.完美結局 || {};
+        const add = (o) => { const c = el("div", "gallery-card special " + o.cls); c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text)); sp.append(c); };
+        add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : (D.出現 || "") });
+        if (m.despairDone) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: m.perfect ? (H.走過 || "") : (H.出現 || "") });
+        if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "" });
+        body.append(sp);   // 絕望線、希望線放在最上面，集滿的時候一眼就看得到
+      }
+      body.append(grid);
+    },
 
     // ---------- 開發者工具 ----------
     renderDev() {

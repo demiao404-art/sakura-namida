@@ -1043,3 +1043,23 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .st-val { text-align: right; font-family: var(--latin); font-variant-numeric: tabular-nums; opacity: 0.9; }
 .st-row.bump .st-val { animation: st-bump 0.9s ease; }
 @keyframes st-bump { 0% { color: var(--c); transform: scale(1.25); } 100% { transform: none; } }
+
+/* 結局圖鑑 */
+.gallery-count { font-size: 22px; letter-spacing: 0.2em; color: var(--sakura); margin: 0 0 18px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 18px; }
+.special-grid { margin-bottom: 26px; padding-bottom: 22px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15); }
+.gallery-card {
+  position: relative; padding: 16px 20px 16px 84px; min-height: 92px;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+}
+.gc-no { position: absolute; left: 20px; top: 18px; font-family: var(--latin); font-size: 18px; color: var(--sakura); opacity: 0.8; }
+.gc-name { font-size: 24px; letter-spacing: 0.12em; margin-bottom: 6px; }
+.gc-text { font-size: 18px; line-height: 1.6; opacity: 0.8; }
+.gallery-card.locked .gc-name { opacity: 0.5; letter-spacing: 0.3em; }
+.gallery-card.locked .gc-text { opacity: 0.55; font-style: italic; }
+.gallery-card.special.despair { background: rgba(10, 6, 12, 0.6); border-color: rgba(140, 110, 150, 0.4); }
+.gallery-card.special.despair .gc-name { color: #b9a6c4; }
+.gallery-card.special.hope { background: rgba(60, 80, 60, 0.25); border-color: rgba(190, 220, 190, 0.35); }
+.gallery-card.special.hope .gc-name { color: #cfe8cf; }
+.gallery-card.special.perfect { grid-column: 1 / -1; background: linear-gradient(90deg, rgba(251, 231, 236, 0.18), rgba(223, 234, 220, 0.18)); border-color: rgba(247, 198, 212, 0.5); }
+.gallery-card.special.perfect .gc-name { color: #f7c6d4; }
