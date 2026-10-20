@@ -860,7 +860,7 @@
       this.textbox.classList.add("hidden");
       await sleep(400);
       const H = inner.offsetHeight, view = 900;
-      const dur = Math.max(26000, (H + view) * 24);
+      const dur = Math.max(14000, (H + view) * 12);   // 捲動速度：每 1 單位 12 毫秒
       inner.style.transform = `translateY(${view}px)`;
       void inner.offsetWidth;
       inner.style.transition = `transform ${dur}ms linear`;
