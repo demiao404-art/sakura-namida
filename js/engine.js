@@ -167,6 +167,7 @@
       }
       const shown = changes.filter((c) => c.delta);
       if (shown.length && this.ui.emotionHint) this.ui.emotionHint(shown, big);
+      if (this.ui.updateStats) this.ui.updateStats(this.state.vars);
       return shown;
     }
 
@@ -290,6 +291,7 @@
 
     // ---------------- 主迴圈 ----------------
     async run() {
+      if (this.ui.updateStats && this.state) this.ui.updateStats(this.state.vars);
       const id = ++this.runId;
       this.running = true;
       try {

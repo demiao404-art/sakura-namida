@@ -77,6 +77,40 @@
       if (!s.ambientPetals && this.petals.level > 0) this.petals.setLevel(0);
       else if (s.ambientPetals && this._petalLevel) this.petals.setLevel(this._petalLevel);
       AudioMgr.applyVolume();
+      this.renderStats();
+    },
+
+    // ---------- 左上角的感情值 ----------
+    updateStats(vars) { this._statVars = vars; this.renderStats(); },
+    renderStats() {
+      const hud = $("stats-hud");
+      if (!hud) return;
+      const E = (this.cfg.感情值 || {}).項目 || {};
+      const show = !!(this.playing && this._statVars && Store.meta.settings.showStats !== false);
+      hud.hidden = !show;
+      if (!show) return;
+      const min = (this.cfg.感情值 || {}).最小 ?? 0, max = (this.cfg.感情值 || {}).最大 ?? 100;
+      if (hud.childElementCount !== Object.keys(E).length) {
+        hud.textContent = "";
+        for (const [name, def] of Object.entries(E)) {
+          const row = document.createElement("div");
+          row.className = "st-row";
+          row.dataset.name = name;
+          row.style.setProperty("--c", def.顏色 || "var(--sakura)");
+          row.innerHTML = '<span class="st-name"></span><span class="st-bar"><i></i></span><span class="st-val"></span>';
+          row.querySelector(".st-name").textContent = name;
+          hud.append(row);
+        }
+      }
+      for (const row of hud.children) {
+        const v = Math.round(Number(this._statVars[row.dataset.name]) || 0);
+        const valEl = row.querySelector(".st-val");
+        if (valEl.textContent !== String(v)) {
+          if (valEl.textContent !== "") { row.classList.remove("bump"); void row.offsetWidth; row.classList.add("bump"); }
+          valEl.textContent = v;
+        }
+        row.querySelector(".st-bar i").style.width = Math.max(0, Math.min(100, (v - min) / (max - min) * 100)) + "%";
+      }
     },
 
     // ---------- 速度 ----------
@@ -199,6 +233,7 @@
       this.quick.hidden = !on;
       this.stage.classList.toggle("playing", on);
       if (!on) { this.stopModes(); this.ctrlHeld = false; this.toggleHide(false); }
+      this.renderStats();
     },
 
     // ---------- 背景 ----------

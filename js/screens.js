@@ -499,6 +499,7 @@
       slider("boxOpacity", "對話框濃度", (v) => v);
       seg("skipMode", "快進", [["read", "只跳過已讀"], ["all", "全部"]]);
       seg("ambientPetals", "飄落花瓣", [[true, "開"], [false, "關"]]);
+      seg("showStats", "感情值", [[true, "顯示"], [false, "隱藏"]]);
       if (Store.meta.perfect) {
         if (s.innerVoice === undefined) s.innerVoice = true;
         seg("innerVoice", "心聲的愛心", [[true, "顯示"], [false, "隱藏"]]);

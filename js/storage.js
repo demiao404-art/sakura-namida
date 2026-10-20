@@ -15,6 +15,7 @@
     autoDelay: 50,      // 0–100
     bgmVolume: 70,
     seVolume: 80,
+    showStats: true,     // 左上角顯示感情值
     skipMode: "read",   // read | all
     boxOpacity: 78,
     ambientPetals: true,
