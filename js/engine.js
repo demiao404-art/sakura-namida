@@ -476,7 +476,8 @@
           return;
 
         case "se":
-          this.audio.se(c.name);
+          // 快轉的時候不播音效，避免一連串的鐘聲疊在一起
+          if (!(ui.skipping)) this.audio.se(c.name);
           return;
 
         case "box":

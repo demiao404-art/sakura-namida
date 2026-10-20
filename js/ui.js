@@ -215,6 +215,17 @@
       const indoor = Array.isArray(outdoor) && name && !outdoor.includes(name);
       this.rain.canvas.classList.toggle("indoor", !!indoor);
       this.bgLayer.classList.toggle("indoor", !!indoor);
+      this._rainIndoor = !!indoor;
+      this.updateRainSound();
+    },
+
+    // 雨聲：室外比較大聲，室內變成隔著窗戶的小聲
+    updateRainSound() {
+      const lv = this._rainLevel || 0;
+      if (!window.AudioMgr || !AudioMgr.setAmbient) return;
+      if (lv <= 0) { AudioMgr.setAmbient(null); return; }
+      const g = Math.min(1, 0.45 + 0.25 * lv) * (this._rainIndoor ? 0.35 : 1);
+      AudioMgr.setAmbient("雨", g);
     },
 
     async setBg(name, fadeSec) {
@@ -311,6 +322,8 @@
 
     // ---------- 下雨 ----------
     setRain(level, instant) {
+      this._rainLevel = level;
+      this.updateRainSound();
       const cv = this.rain.canvas;
       clearTimeout(this._rainFade);
       this.bgLayer.classList.toggle("rainy", level > 0);

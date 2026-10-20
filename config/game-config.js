@@ -153,7 +153,12 @@ window.GAME_CONFIG = {
     完美結局之後: "希望",   // 走到完美結局之後，標題畫面不再用鋼琴
   },
   音效: {
-    // "鐘聲": "assets/audio/se/bell.mp3",
+    "鐘聲": "assets/audio/se/chime.mp3",     // 學校的鐘聲
+    "鐵門": "assets/audio/se/door.mp3",      // 頂樓的鐵門被推開
+    "震動": "assets/audio/se/vibrate.mp3",   // 手機震動（訊息）
+    "來電": "assets/audio/se/ring.mp3",      // 手機鈴聲
+    "腳步": "assets/audio/se/steps.mp3",     // 跑上樓梯
+    "雨":   "assets/audio/se/rain.mp3",      // 雨聲（下雨時自動循環播放，室內會變小聲）
   },
 
   // ---------------------------------------------------------
