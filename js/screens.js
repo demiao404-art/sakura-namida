@@ -9,7 +9,7 @@
   const pad = (n) => String(n).padStart(2, "0");
   const fmtTime = (t) => { const d = new Date(t); return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 
-  const OVERLAYS = ["menu", "saves", "settings", "log", "cloud", "gallery", "dev", "warning"];
+  const OVERLAYS = ["menu", "saves", "settings", "log", "cloud", "gallery", "afterword", "dev", "warning"];
 
   const Screens = {
     stack: [],
@@ -21,7 +21,7 @@
       this.script = script;
 
       document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); this.closeTop(); }));
-      ["screen-menu", "screen-saves", "screen-settings", "screen-log", "screen-cloud", "screen-gallery", "screen-dev"].forEach((id) =>
+      ["screen-menu", "screen-saves", "screen-settings", "screen-log", "screen-cloud", "screen-gallery", "screen-afterword", "screen-dev"].forEach((id) =>
         $(id).addEventListener("click", (e) => e.stopPropagation()));
 
       this.initWarning();
@@ -49,6 +49,7 @@
       if (name === "log") this.renderLog();
       if (name === "cloud") this.renderCloud();
       if (name === "gallery") this.renderGallery();
+      if (name === "afterword") this.renderAfterword();
       if (name === "dev") this.renderDev();
       if (name === "warning") this.renderWarning(true);
       this.stack.push(name);
@@ -622,6 +623,14 @@
     // ---------- 雲端 ----------
     renderCloud() { Cloud.render($("cloud-body")); },
 
+    renderAfterword() {
+      const body = $("afterword-body");
+      body.textContent = "";
+      const wrap = el("div", "afterword");
+      (this.cfg.作者的話 || []).forEach((para) => wrap.append(el("p", null, para)));
+      body.append(wrap);
+    },
+
     // ---------- 結局圖鑑 ----------
     // 拿到的結局顯示名字和一句話；還沒拿到的只顯示提示。
     // 集滿所有結局之後，會出現「絕望線」；希望線要走到完美結局之後才會出現（之前不給任何提示）。
@@ -637,7 +646,15 @@
       head.append(el("p", "gallery-count", `花瓣　${Math.min(got.size, need)} ／ ${need}`));
       const cr = el("button", "btn small", "工作人員名單");
       cr.addEventListener("click", async (e) => { e.stopPropagation(); await UI.credits(this.cfg.工作人員名單); });
-      head.append(cr);
+      const btns = el("div", "row-btns");
+      // 作者的話：全部玩完（走到完美結局）之後才出現
+      if (Store.meta.perfect && (this.cfg.作者的話 || []).length) {
+        const aw = el("button", "btn small primary", "作者的話");
+        aw.addEventListener("click", (e) => { e.stopPropagation(); this.open("afterword"); });
+        btns.append(aw);
+      }
+      btns.append(cr);
+      head.append(btns);
       body.append(head);
       const grid = el("div", "gallery-grid");
       const card = (opts) => {

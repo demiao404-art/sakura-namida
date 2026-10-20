@@ -1098,3 +1098,8 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .cr-title .cr-name { font-size: 96px; letter-spacing: 0.2em; margin-bottom: 60px; }
 .cr-end { margin-top: 140px; }
 .cr-end .cr-name { font-size: 28px; opacity: 0.85; }
+
+/* 作者的話 */
+.gallery-head .row-btns { display: flex; gap: 12px; }
+.afterword { max-width: 980px; margin: 10px auto 40px; }
+.afterword p { font-size: 24px; line-height: 2.1; letter-spacing: 0.08em; margin: 0 0 1.4em; white-space: pre-line; }
