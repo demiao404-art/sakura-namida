@@ -93,8 +93,9 @@
     closeAll() { [...this.stack].forEach((n) => this.close(n)); },
 
     // ---------- 對話視窗（取代 confirm） ----------
-    confirm({ title, text, buttons }) {
+    confirm({ title, text, buttons, wide }) {
       return new Promise((resolve) => {
+        $("modal").classList.toggle("wide", !!wide);
         $("modal-title").textContent = title || "";
         $("modal-text").textContent = text || "";
         const box = $("modal-btns");
@@ -295,8 +296,15 @@
       Store.save("notice");
       await this.confirm({
         title: "開始之前",
-        text: "建議玩法：蒐集所有的結局。\n每一個結局裡，都藏著改變故事的線索。\n\n選項下方可以顯示「選了之後，感情值會怎麼變化」。\n這個功能目前是關閉的，之後隨時可以在「設定」裡打開。\n\n不過，為了最好的遊戲體驗，建議你先不要打開，\n憑著自己的感覺，陪櫻走過這三十天。",
+        text: "建議玩法：蒐集所有的結局。\n每一個結局裡，都藏著改變故事的線索。\n\n" +
+          "遊玩時間比較長：一輪大約 40 分鐘到 2 小時，蒐集所有結局需要好幾個小時。\n" +
+          "・不需要一次玩完。每天開始和遇到選項時都會自動存檔，下次按「繼續」就能接著玩。\n" +
+          "・讀過的文字，可以用「Skip」快速略過。\n" +
+          "・建議登入「雲端存檔」，清除瀏覽器資料或換裝置時，進度才不會消失。\n" +
+          "・故事的內容比較沉重，覺得累的時候，請隨時休息。\n\n" +
+          "選項下方可以顯示「選了之後，感情值會怎麼變化」。\n這個功能目前是關閉的，之後隨時可以在「設定」裡打開。\n\n不過，為了最好的遊戲體驗，建議你先不要打開，\n憑著自己的感覺，陪櫻走過這三十天。",
         buttons: [{ label: "我知道了", value: true, kind: "primary" }],
+        wide: true,
       });
     },
 

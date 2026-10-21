@@ -1202,3 +1202,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .choice-fx em { font-style: normal; margin: 0 9px; color: var(--fx-color, #f0e8eb); opacity: 0.95; }
 .choice-fx em.down { opacity: 0.7; }
 .choice:disabled .choice-fx { opacity: 0.5; }
+
+/* 比較長的說明視窗（第一次開始遊戲） */
+#modal.wide .modal-card { width: 1180px; max-width: 92%; padding-top: 34px; padding-bottom: 30px; }
+#modal.wide .modal-text { font-size: 21px; line-height: 1.7; }
