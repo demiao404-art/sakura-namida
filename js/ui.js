@@ -774,7 +774,7 @@
         }
         case "倒帶":
         case "輪迴": {
-          // [效果 輪迴 字幕 背景名 …]：依序切換各個結局的場景（一開始慢，越來越快），字幕一直重複出現
+          // [效果 輪迴 字幕 背景名 …]：依序切換各個結局的場景（一開始慢，越來越快，不是倒帶），加上雜訊，字幕一直重複出現
           // （舊的寫法 [效果 倒帶 …] 也會走到這裡）
           const [word, ...bgs] = args || [];
           if (fast || !bgs.length) return;
@@ -784,7 +784,21 @@
           const sa = document.createElement("div"); sa.className = "lp-scene";
           const sb = document.createElement("div"); sb.className = "lp-scene";
           const words = document.createElement("div"); words.className = "rw-words";
-          box.append(sa, sb, words);
+          // 雜訊：小畫布每一格重新撒一次雜點，放大鋪滿畫面（畫面本身不倒帶，只是一直切換）
+          const nz = document.createElement("canvas"); nz.className = "rw-noise"; nz.width = 320; nz.height = 180;
+          nz.style.zIndex = 3; words.style.zIndex = 4; words.style.position = "absolute"; words.style.inset = "0";
+          box.append(sa, sb, nz, words);
+          const nctx = nz.getContext("2d");
+          const img = nctx.createImageData(320, 180);
+          let noiseOn = true;
+          const drawNoise = () => {
+            if (!noiseOn) return;
+            const d = img.data;
+            for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+            nctx.putImageData(img, 0, 0);
+            requestAnimationFrame(drawNoise);
+          };
+          drawNoise();
           this.fxLayer.append(box);
           this.stage.classList.add("rewinding");
           void box.offsetWidth; box.classList.add("on");
@@ -817,9 +831,12 @@
               words.append(w);
             }
             step++;
+            // 雜訊越來越重
+            nz.style.opacity = Math.min(0.42, 0.12 + step * 0.015);
             await sleep(dur);
           }
           await sleep(350);
+          noiseOn = false;
           this.flash.style.transitionDuration = "120ms"; this.flash.classList.add("on");
           await sleep(180);
           box.remove();
