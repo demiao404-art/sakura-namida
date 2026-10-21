@@ -222,7 +222,7 @@
       const row = document.createElement("div");
       row.className = "row-btns";
 
-      const privacy = () => p("隱私說明：登入後，雲端只會保存你的 Google 帳號識別碼、電子郵件，以及遊戲進度與存檔，只用來讓你在不同裝置接著玩，不會用在其他地方，也不會提供給任何人。你可以隨時按「刪除雲端資料」把它們全部刪除。", "note");
+      const privacy = () => p("隱私說明：登入後，雲端只會保存你的 Google 帳號識別碼、電子郵件，以及遊戲進度與存檔，用來讓你在不同裝置接著玩。作者可能會查看玩家的遊玩進度，用來改善遊戲；除此之外不會用在其他地方，也不會提供給任何人。你可以隨時按「刪除雲端資料」把它們全部刪除。", "note");
 
       if (this.status === "loading") {
         h.textContent = "連線中";
