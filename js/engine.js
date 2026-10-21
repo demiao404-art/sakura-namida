@@ -242,10 +242,9 @@
       this.ui.backlog.length = 0;
       if (phase === "希望") {
         await this.hopeIntro();
-        // 主角說完「我要用對櫻的思念改變一切。」之後：生存可能 0% → 5%
-        this.state.survival = 5;
+        // 希望輪一路都是 0%，直到第 30 天主角下定決心（[生存可能 1]）才開始往上
+        this.state.survival = 0;
         this.ui.updateSurvival(phase);
-        if (this.ui.survivalCount) this.ui.survivalCount(0, 5);
       }
       this.run();
     }
@@ -262,9 +261,9 @@
       this.stop();
       this.state = clone(st);
       // 舊版存檔（還沒有「生存可能」的數值）：依照走到的天數補上
-      if (this.state.phase === "希望" && typeof this.state.survival !== "number") {
-        const d = this.state.day || 1;
-        this.state.survival = d >= 28 ? 70 : d >= 26 ? 60 : d >= 22 ? 50 : d >= 18 ? 40 : d >= 15 ? 30 : d >= 12 ? 20 : d >= 8 ? 15 : d >= 1 ? 10 : 5;
+      // （舊版在第 30 天之前會一路加到 70%，現在第 30 天之前都是 0%）
+      if (this.state.phase === "希望" && (typeof this.state.survival !== "number" || this.state.survival < 80)) {
+        if (this.state.survival !== 1) this.state.survival = 0;
       }
       // 希望輪選錯、回到標題之後，再試一次：先演出開場字幕
       const retry = this.state.hopeRetry;
@@ -278,7 +277,7 @@
       if (retry) {
         this.ui.resetScene();
         await this.hopeIntro();
-        if (!this.state.survival) this.state.survival = 5;
+        if (!this.state.survival) this.state.survival = 0;
       }
       this.ui.restoreScene(this.state);
       this.audio.bgm(this.state.bgm);
