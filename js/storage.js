@@ -20,6 +20,7 @@
     boxOpacity: 78,
     ambientPetals: true,
     innerVoice: true,   // 完美結局之後才有作用
+    choiceFx: true,     // 選項旁邊顯示會改變的感情值
   };
 
   function defaultMeta() {

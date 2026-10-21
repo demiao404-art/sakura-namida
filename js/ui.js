@@ -646,6 +646,18 @@
           b.style.transitionDelay = (i * 70) + "ms";
           b.innerHTML = `<svg class="petal-mark l"><use href="#i-petal"/></svg><span></span><svg class="petal-mark r"><use href="#i-petal"/></svg>`;
           b.querySelector("span").textContent = it.text;
+          if (it.fx && it.fx.length) {
+            const fx = document.createElement("small");
+            fx.className = "choice-fx";
+            it.fx.forEach((f) => {
+              const t = document.createElement("em");
+              t.className = f.delta > 0 ? "up" : "down";
+              t.style.setProperty("--fx-color", f.color || "");
+              t.textContent = `${f.name} ${f.delta > 0 ? "+" : "−"}${Math.abs(f.delta)}`;
+              fx.append(t);
+            });
+            b.querySelector("span").append(fx);
+          }
           if (it.disabled) b.setAttribute("aria-disabled", "true");
           if (it.glitch && !it.disabled) {
             b.classList.add("glitch");

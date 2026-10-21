@@ -114,6 +114,22 @@
 
     // ---------------- 感情值 ----------------
     get emo() { return (this.config.感情值 || {}); }
+    // 選項旁邊要顯示的感情變化（不會真的改變數值）：只算看得到的感情值，壓力等隱藏數值不顯示
+    previewEffects(opt) {
+      const items = this.emo.項目 || {};
+      const cap = opt.big ? Infinity : (this.emo.單次上限 || Infinity);
+      const sum = {};
+      for (const e of opt.effects || []) {
+        const def = items[e.name];
+        if (!def || def.不顯示 || (e.op !== "+" && e.op !== "-")) continue;
+        let d = Number(e.value) * (e.op === "-" ? -1 : 1);
+        if (isNaN(d)) continue;
+        d = Math.max(-cap, Math.min(cap, d));
+        sum[e.name] = (sum[e.name] || 0) + d;
+      }
+      return Object.keys(items).filter((k) => sum[k]).map((k) => ({ name: k, delta: sum[k], color: items[k].顏色 }));
+    }
+
     isEmotion(name) { return !!(this.emo.項目 || {})[name]; }
 
     initialVars() {
@@ -554,6 +570,8 @@
         disabled: phase === "希望" && greyed.has(o.oid),
         // 希望輪：錯誤的選項帶一點點雜訊（櫻記得，那條路走下去會發生什麼）
         glitch: phase === "希望" && !!o.wrong,
+        // 選項旁邊的感情變化：希望輪不顯示（不能讓答案變得太明顯），設定裡可以關掉
+        fx: phase !== "希望" && (Store.meta.settings || {}).choiceFx !== false ? this.previewEffects(o) : [],
         opt: o,
       }));
       if (items.length && items.every((i) => i.disabled)) items.forEach((i) => (i.disabled = false));

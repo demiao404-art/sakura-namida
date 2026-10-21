@@ -1196,3 +1196,9 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 /* 標題選單分成兩欄：左邊是遊戲，右邊是資訊與設定 */
 .title-menu { flex-direction: row; align-items: flex-start; gap: 64px; }
 .tm-col { display: flex; flex-direction: column; gap: 6px; }
+
+/* 選項旁邊的感情變化 */
+.choice-fx { display: block; margin-top: 6px; font-size: 19px; letter-spacing: 0.06em; line-height: 1.4; }
+.choice-fx em { font-style: normal; margin: 0 9px; color: var(--fx-color, #f0e8eb); opacity: 0.95; }
+.choice-fx em.down { opacity: 0.7; }
+.choice:disabled .choice-fx { opacity: 0.5; }
