@@ -772,41 +772,39 @@
           }
           return;
         }
-        case "倒帶": {
-          // [效果 倒帶 字幕 背景名 …]：像錄影帶倒轉一樣，倒著閃過各種結局的畫面，字幕一直重複出現
+        case "倒帶":
+        case "輪迴": {
+          // [效果 輪迴 字幕 背景名 …]：依序切換各個結局的場景（一開始慢，越來越快），字幕一直重複出現
+          // （舊的寫法 [效果 倒帶 …] 也會走到這裡）
           const [word, ...bgs] = args || [];
           if (fast || !bgs.length) return;
           this.textbox.classList.add("hidden");
           const box = document.createElement("div");
-          box.className = "rewind";
-          const scr = document.createElement("div"); scr.className = "rw-screen";
-          const mark = document.createElement("div"); mark.className = "rw-mark"; mark.textContent = "◀◀";
+          box.className = "loopfx";
+          const sa = document.createElement("div"); sa.className = "lp-scene";
+          const sb = document.createElement("div"); sb.className = "lp-scene";
           const words = document.createElement("div"); words.className = "rw-words";
-          // 雜訊：小畫布每一格重新撒一次雜點，放大鋪滿畫面
-          const nz = document.createElement("canvas"); nz.className = "rw-noise"; nz.width = 320; nz.height = 180;
-          box.append(scr, nz, words, mark);
-          const nctx = nz.getContext("2d");
-          const img = nctx.createImageData(320, 180);
-          let noiseOn = true;
-          const drawNoise = () => {
-            if (!noiseOn) return;
-            const d = img.data;
-            for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
-            nctx.putImageData(img, 0, 0);
-            requestAnimationFrame(drawNoise);
-          };
-          drawNoise();
+          box.append(sa, sb, words);
           this.fxLayer.append(box);
           this.stage.classList.add("rewinding");
           void box.offsetWidth; box.classList.add("on");
-          let step = 0;
+          let front = null, step = 0;
           for (const bg of bgs) {
             const v = this.bgValue(bg);
+            const dur = Math.max(110, Math.round(650 * Math.pow(0.85, step)));
+            const fadeMs = Math.round(dur * 0.45);
             if (v) {
-              if (String(v).startsWith("#")) { scr.style.backgroundImage = ""; scr.style.backgroundColor = v; }
-              else { scr.style.backgroundColor = "#000"; scr.style.backgroundImage = `url("${v}")`; }
+              const next = front === sa ? sb : sa;
+              if (String(v).startsWith("#")) { next.style.backgroundImage = ""; next.style.backgroundColor = v; }
+              else { next.style.backgroundColor = "#000"; next.style.backgroundImage = `url("${v}")`; }
+              next.style.setProperty("--lp-fade", fadeMs + "ms");
+              next.style.zIndex = 2;
+              if (front) { front.style.zIndex = 1; }
+              next.classList.remove("on"); void next.offsetWidth; next.classList.add("on");
+              const old = front;
+              front = next;
+              if (old) setTimeout(() => { if (front !== old) old.classList.remove("on"); }, fadeMs);
             }
-            scr.classList.remove("jolt"); void scr.offsetWidth; scr.classList.add("jolt");
             if (word) {
               const w = document.createElement("span");
               w.textContent = word;
@@ -819,12 +817,9 @@
               words.append(w);
             }
             step++;
-            // 一開始半秒一格，之後越來越快；雜訊也越來越重
-            nz.style.opacity = Math.min(0.42, 0.12 + step * 0.015);
-            await sleep(Math.max(50, Math.round(500 * Math.pow(0.82, step - 1))));
+            await sleep(dur);
           }
           await sleep(350);
-          noiseOn = false;
           this.flash.style.transitionDuration = "120ms"; this.flash.classList.add("on");
           await sleep(180);
           box.remove();
@@ -856,7 +851,7 @@
     // ---------- 場景重設 ----------
     resetScene() {
       this.cancelAll();
-      this.fxLayer.querySelectorAll(".rewind, .flashback").forEach((e) => e.remove());
+      this.fxLayer.querySelectorAll(".rewind, .loopfx, .flashback").forEach((e) => e.remove());
       this.stage.classList.remove("rewinding");
       this.setBgInstant(null);
       this.hideChar("*", true);

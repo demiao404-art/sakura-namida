@@ -1236,6 +1236,12 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 @media (prefers-reduced-motion: reduce) { .rw-screen.jolt, .rw-mark { animation: none; } .flashback { transition: opacity 140ms ease; transform: none; } }
 #stage.rewinding #stats-hud, #stage.rewinding #survival, #stage.rewinding #quickmenu { opacity: 0; transition: opacity 200ms ease; }
 .rw-noise { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.12; mix-blend-mode: screen; image-rendering: pixelated; pointer-events: none; }
+/* 輪迴：依序切換各個結局的場景 */
+.loopfx { position: absolute; inset: 0; background: #000; opacity: 0; transition: opacity 300ms ease; overflow: hidden; }
+.loopfx.on { opacity: 1; }
+.lp-scene { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; filter: saturate(0.55) brightness(0.78); transition: opacity var(--lp-fade, 400ms) ease; }
+.lp-scene.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .lp-scene { transition: none; } }
 
 /* 謝幕後的對話：溫暖的背景 */
 .ending-text.caption.caption-warm, .ending-text.caption.caption-warm.caption-voice { color: #5b3d49; }
