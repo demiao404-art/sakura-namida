@@ -55,6 +55,7 @@
         Store.save("notice");
         this.updateGalleryDot();
       }
+      if (name === "staff") this.renderStaff();
       if (name === "updates") {
         this.renderUpdates();
         const U = this.visibleUpdates();
@@ -213,6 +214,7 @@
         if (act === "gallery") this.open("gallery");
         if (act === "afterword") this.open("afterword");
         if (act === "updates") this.open("updates");
+        if (act === "staff") this.open("staff");
       });
     },
 
@@ -732,6 +734,21 @@
       body.append(wrap);
     },
 
+    // ---------- 開發人員 ----------
+    // 內容來自「工作人員名單」；職位留空的（遊戲標題、最後一句話）在這裡不顯示
+    renderStaff() {
+      const body = $("staff-body");
+      body.textContent = "";
+      const wrap = el("div", "staff");
+      (this.cfg.工作人員名單 || []).forEach(([role, ...names]) => {
+        if (!role) return;
+        const row = el("div", "staff-row");
+        row.append(el("div", "staff-role", role), el("div", "staff-names", names.join("\n")));
+        wrap.append(row);
+      });
+      body.append(wrap);
+    },
+
     renderAfterword() {
       const body = $("afterword-body");
       body.textContent = "";
@@ -767,7 +784,11 @@
       if (a) a.classList.toggle("has-new", !!Store.meta.perfect && !Store.meta.afterwordSeen);
       // 選項太多（8 個以上）時，選單排得緊一點，才不會碰到標題
       const menu = document.querySelector(".title-menu");
-      if (menu) menu.classList.toggle("compact", [...menu.querySelectorAll(".tm")].filter((t) => !t.hidden).length >= 8);
+      if (menu) {
+        const n = [...menu.querySelectorAll(".tm")].filter((t) => !t.hidden).length;
+        menu.classList.toggle("compact", n >= 8);
+        menu.classList.toggle("compact2", n >= 9);
+      }
     },
 
     renderGallery() {

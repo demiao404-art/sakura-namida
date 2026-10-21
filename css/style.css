@@ -1183,3 +1183,12 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .title-menu.compact .tm { font-size: 27px; padding: 3px 0; }
 .title-menu.compact .tm .en { font-size: 20px; }
 .ending-text.caption.caption-glitch .caption-speaker { color: rgba(216, 212, 214, 0.6); }
+
+.title-menu.compact2 .tm { font-size: 25px; padding: 1px 0; }
+.title-menu.compact2 .tm .en { font-size: 18px; }
+
+/* 開發人員 */
+.staff { max-width: 900px; margin: 10px auto 40px; }
+.staff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 16px 0; border-bottom: 1px solid var(--line-soft); align-items: center; }
+.staff-role { text-align: right; font-size: 20px; letter-spacing: 0.12em; line-height: 1.8; white-space: pre-line; color: var(--sakura); }
+.staff-names { font-size: 26px; letter-spacing: 0.08em; line-height: 1.7; white-space: pre-line; }
