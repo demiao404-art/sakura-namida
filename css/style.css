@@ -1192,3 +1192,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .staff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 16px 0; border-bottom: 1px solid var(--line-soft); align-items: center; }
 .staff-role { text-align: right; font-size: 20px; letter-spacing: 0.12em; line-height: 1.8; white-space: pre-line; color: var(--sakura); }
 .staff-names { font-size: 26px; letter-spacing: 0.08em; line-height: 1.7; white-space: pre-line; }
+
+/* 標題選單分成兩欄：左邊是遊戲，右邊是資訊與設定 */
+.title-menu { flex-direction: row; align-items: flex-start; gap: 64px; }
+.tm-col { display: flex; flex-direction: column; gap: 6px; }

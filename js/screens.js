@@ -783,13 +783,7 @@
       // 作者的話：第一次出現時也有紅點，打開看過就消失
       const a = $("tm-afterword");
       if (a) a.classList.toggle("has-new", !!Store.meta.perfect && !Store.meta.afterwordSeen);
-      // 選項太多（8 個以上）時，選單排得緊一點，才不會碰到標題
-      const menu = document.querySelector(".title-menu");
-      if (menu) {
-        const n = [...menu.querySelectorAll(".tm")].filter((t) => !t.hidden).length;
-        menu.classList.toggle("compact", n >= 8);
-        menu.classList.toggle("compact2", n >= 9);
-      }
+      // 選單分成左右兩欄（左：遊戲，右：資訊），不需要再縮小
     },
 
     renderGallery() {
