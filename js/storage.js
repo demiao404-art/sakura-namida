@@ -95,6 +95,7 @@
       warningAccepted: lm.warningAccepted || rm.warningAccepted,
       playerName: newer.playerName || lm.playerName || rm.playerName,
       gallerySeenKeys: union(lm.gallerySeenKeys, rm.gallerySeenKeys),
+      afterwordSeen: !!(lm.afterwordSeen || rm.afterwordSeen),
       loops: Math.max(lm.loops || 0, rm.loops || 0),
       endings: union(lm.endings, rm.endings),
       endingLog: mergeLog(lm.endingLog, rm.endingLog),

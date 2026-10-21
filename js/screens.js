@@ -55,7 +55,12 @@
         Store.save("notice");
         this.updateGalleryDot();
       }
-      if (name === "afterword") this.renderAfterword();
+      if (name === "afterword") {
+        this.renderAfterword();
+        Store.meta.afterwordSeen = true;   // 看過了：紅點消失
+        Store.save("notice");
+        this.updateGalleryDot();
+      }
       if (name === "dev") this.renderDev();
       if (name === "warning") this.renderWarning(true);
       this.stack.push(name);
@@ -714,6 +719,9 @@
       const b = document.querySelector('.tm[data-act="gallery"]');
       if (!b) return;
       b.classList.toggle("has-new", this.galleryKeys().some((k) => this.isNewInGallery(k)));
+      // 作者的話：第一次出現時也有紅點，打開看過就消失
+      const a = $("tm-afterword");
+      if (a) a.classList.toggle("has-new", !!Store.meta.perfect && !Store.meta.afterwordSeen);
     },
 
     renderGallery() {
