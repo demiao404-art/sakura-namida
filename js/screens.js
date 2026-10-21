@@ -49,9 +49,9 @@
       if (name === "log") this.renderLog();
       if (name === "cloud") this.renderCloud();
       if (name === "gallery") {
-        this.renderGallery();
-        // 看過了：紅點消失
-        Store.meta.gallerySeen = this.gallerySig();
+        this.renderGallery();          // 新的卡片上會有紅點
+        // 看過了：記下來，下次打開就不再有紅點；標題畫面的紅點也消失
+        Store.meta.gallerySeenKeys = this.galleryKeys();
         Store.save("notice");
         this.updateGalleryDot();
       }
@@ -700,16 +700,20 @@
     // 拿到的結局顯示名字和一句話；還沒拿到的只顯示提示。
     // 集滿所有結局之後，會出現「絕望線」；希望線要走到完美結局之後才會出現（之前不給任何提示）。
     // 結局圖鑑有新東西（新結局、絕望線、希望線、完美結局）時，標題畫面的「結局」旁邊出現紅點
-    gallerySig() {
+    // 圖鑑裡目前看得到的每一張卡片
+    galleryKeys() {
       const m = Store.meta;
-      return [...(m.endings || [])].sort().join(",") + "|" + (m.despairDone ? 1 : 0) + "|" + (m.perfect ? 1 : 0);
+      const keys = (m.endings || []).map((id) => "e" + id);
+      if ((m.endings || []).length >= this.engine.endingsNeeded || m.despairDone) keys.push("despair");
+      if (m.despairDone) keys.push("despairDone");
+      if (m.perfect) keys.push("hope", "perfect");
+      return keys;
     },
+    isNewInGallery(key) { return !(Store.meta.gallerySeenKeys || []).includes(key); },
     updateGalleryDot() {
       const b = document.querySelector('.tm[data-act="gallery"]');
       if (!b) return;
-      const m = Store.meta;
-      const has = (m.endings || []).length || m.despairDone || m.perfect;
-      b.classList.toggle("has-new", !!has && m.gallerySeen !== this.gallerySig());
+      b.classList.toggle("has-new", this.galleryKeys().some((k) => this.isNewInGallery(k)));
     },
 
     renderGallery() {
@@ -730,7 +734,7 @@
       body.append(head);
       const grid = el("div", "gallery-grid");
       const card = (opts) => {
-        const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.special ? " special " + opts.special : ""));
+        const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.special ? " special " + opts.special : "") + (opts.isNew ? " is-new" : ""));
         c.append(el("div", "gc-no", opts.no || ""));
         c.append(el("div", "gc-name", opts.name));
         c.append(el("div", "gc-text", opts.text || ""));
@@ -743,17 +747,18 @@
           name: has ? e.名稱 : "？？？",
           text: has ? e.簡介 : "提示：" + e.提示,
           locked: !has,
+          isNew: has && this.isNewInGallery("e" + e.id),
         });
       });
       const all = got.size >= need;
       if (all || m.despairDone || m.perfect) {
         const sp = el("div", "gallery-grid special-grid");
         const D = G.絕望線 || {}, H = G.希望線 || {}, P = G.完美結局 || {};
-        const add = (o) => { const c = el("div", "gallery-card special " + o.cls); c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text)); sp.append(c); };
-        add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : (D.出現 || "") });
+        const add = (o) => { const c = el("div", "gallery-card special " + o.cls + (o.isNew ? " is-new" : "")); c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text)); sp.append(c); };
+        add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : (D.出現 || ""), isNew: this.isNewInGallery(m.despairDone ? "despairDone" : "despair") });
         // 希望線：走完之前完全不提示，走到完美結局之後才出現
-        if (m.perfect) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: H.走過 || "" });
-        if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "" });
+        if (m.perfect) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: H.走過 || "", isNew: this.isNewInGallery("hope") });
+        if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "", isNew: this.isNewInGallery("perfect") });
         body.append(sp);   // 絕望線、希望線放在最上面，集滿的時候一眼就看得到
       }
       body.append(grid);

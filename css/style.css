@@ -1158,3 +1158,12 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 }
 @keyframes tm-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
 @media (prefers-reduced-motion: reduce) { .tm.has-new::after { animation: none; } }
+
+/* 圖鑑裡新出現的卡片：右上角的紅點 */
+.gallery-card { position: relative; }
+.gallery-card.is-new::after {
+  content: ""; position: absolute; top: 12px; right: 12px; width: 12px; height: 12px; border-radius: 50%;
+  background: #e0394f; box-shadow: 0 0 0 3px rgba(224, 57, 79, 0.18), 0 0 10px rgba(224, 57, 79, 0.6);
+  animation: tm-dot 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .gallery-card.is-new::after { animation: none; } }
