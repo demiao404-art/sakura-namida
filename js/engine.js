@@ -245,6 +245,11 @@
     async loadState(st) {
       this.stop();
       this.state = clone(st);
+      // 舊版存檔（還沒有「生存可能」的數值）：依照走到的天數補上
+      if (this.state.phase === "希望" && typeof this.state.survival !== "number") {
+        const d = this.state.day || 1;
+        this.state.survival = d >= 28 ? 70 : d >= 26 ? 60 : d >= 22 ? 50 : d >= 18 ? 40 : d >= 15 ? 30 : d >= 12 ? 20 : d >= 8 ? 15 : d >= 1 ? 10 : 5;
+      }
       // 希望輪選錯、回到標題之後，再試一次：先演出開場字幕
       const retry = this.state.hopeRetry;
       delete this.state.hopeRetry;
