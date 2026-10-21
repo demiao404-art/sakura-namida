@@ -753,6 +753,69 @@
           this.setVeil(true); await sleep(fast ? 80 : 950); return;
         case "淡入": case "黑幕結束":
           this.setVeil(false); await sleep(fast ? 80 : 950); return;
+        case "閃回": {
+          // [效果 閃回 背景名 …]：一瞬間閃過回憶裡的畫面（台詞框留在上面），可以連續閃好幾個
+          if (fast || !args || !args.length) return;
+          for (const bg of args) {
+            const v = this.bgValue(bg);
+            if (!v) continue;
+            const d = document.createElement("div");
+            d.className = "flashback";
+            if (String(v).startsWith("#")) d.style.backgroundColor = v; else d.style.backgroundImage = `url("${v}")`;
+            this.fxLayer.append(d);
+            void d.offsetWidth; d.classList.add("on");
+            await sleep(520);
+            d.classList.remove("on"); d.classList.add("off");
+            await sleep(240);
+            d.remove();
+          }
+          return;
+        }
+        case "倒帶": {
+          // [效果 倒帶 字幕 背景名 …]：像錄影帶倒轉一樣，倒著閃過各種結局的畫面，字幕一直重複出現
+          const [word, ...bgs] = args || [];
+          if (fast || !bgs.length) return;
+          this.textbox.classList.add("hidden");
+          const box = document.createElement("div");
+          box.className = "rewind";
+          const scr = document.createElement("div"); scr.className = "rw-screen";
+          const mark = document.createElement("div"); mark.className = "rw-mark"; mark.textContent = "◀◀";
+          const words = document.createElement("div"); words.className = "rw-words";
+          box.append(scr, words, mark);
+          this.fxLayer.append(box);
+          this.stage.classList.add("rewinding");
+          void box.offsetWidth; box.classList.add("on");
+          let step = 0;
+          for (const bg of bgs) {
+            const v = this.bgValue(bg);
+            if (v) {
+              if (String(v).startsWith("#")) { scr.style.backgroundImage = ""; scr.style.backgroundColor = v; }
+              else { scr.style.backgroundColor = "#000"; scr.style.backgroundImage = `url("${v}")`; }
+            }
+            scr.classList.remove("jolt"); void scr.offsetWidth; scr.classList.add("jolt");
+            if (word) {
+              const w = document.createElement("span");
+              w.textContent = word;
+              const big = step >= bgs.length - 3;
+              w.style.left = (big ? 50 : 12 + Math.random() * 76) + "%";
+              w.style.top = (big ? 50 : 12 + Math.random() * 70) + "%";
+              w.style.fontSize = (big ? 64 + step * 2 : 26 + Math.random() * 30) + "px";
+              w.style.opacity = big ? 1 : 0.35 + Math.random() * 0.45;
+              if (big) w.classList.add("big");
+              words.append(w);
+            }
+            step++;
+            await sleep(Math.max(170, 420 - step * 22));
+          }
+          await sleep(500);
+          this.flash.style.transitionDuration = "120ms"; this.flash.classList.add("on");
+          await sleep(180);
+          box.remove();
+          this.stage.classList.remove("rewinding");
+          this.flash.style.transitionDuration = "900ms"; this.flash.classList.remove("on");
+          await sleep(600);
+          return;
+        }
         case "回憶": this.setMemory(true); return;
         case "回憶結束": this.setMemory(false); return;
         case "一片花瓣": {
@@ -776,6 +839,8 @@
     // ---------- 場景重設 ----------
     resetScene() {
       this.cancelAll();
+      this.fxLayer.querySelectorAll(".rewind, .flashback").forEach((e) => e.remove());
+      this.stage.classList.remove("rewinding");
       this.setBgInstant(null);
       this.hideChar("*", true);
       this.setPetals(0, true);
