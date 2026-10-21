@@ -1152,7 +1152,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 /* 標題畫面：結局圖鑑有新東西時的紅點 */
 .tm { position: relative; }
 .tm.has-new::after {
-  content: ""; position: absolute; left: -22px; top: 50%; width: 12px; height: 12px; margin-top: -6px;
+  content: ""; flex: none; align-self: center; width: 12px; height: 12px; margin-left: -4px;
   border-radius: 50%; background: #e0394f; box-shadow: 0 0 0 3px rgba(224, 57, 79, 0.18), 0 0 10px rgba(224, 57, 79, 0.6);
   animation: tm-dot 1.8s ease-in-out infinite;
 }
