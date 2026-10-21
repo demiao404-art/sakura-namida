@@ -1015,11 +1015,15 @@
       if (!pages.length) return;
       const layer = $("ending-layer");
       const txt = $("ending-text");
-      const perfect = opts && opts.style === "perfect";
+      const warm = opts && opts.style === "warm";
+      const perfect = (opts && opts.style === "perfect") || warm;
       layer.style.transition = "opacity 1.2s ease";
-      layer.style.background = perfect ? "linear-gradient(180deg, #fbe7ec 0%, #f6d7df 40%, #dfeadc 100%)" : "#000";
+      layer.style.background = warm
+        ? "radial-gradient(ellipse at 50% 35%, #fff6e3 0%, #fbe3cf 45%, #f2d3d6 75%, #e4d9ea 100%)"
+        : perfect ? "linear-gradient(180deg, #fbe7ec 0%, #f6d7df 40%, #dfeadc 100%)" : "#000";
       txt.style.color = perfect ? "#5b3d49" : "";
       txt.style.textShadow = perfect ? "0 1px 10px rgba(255, 255, 255, 0.7)" : "";
+      txt.classList.toggle("caption-warm", !!warm);
       txt.classList.add("caption");
       txt.classList.toggle("caption-long", pages.some((p) => pageText(p).length > 24));
       txt.classList.toggle("caption-notice", !!(opts && opts.notice));
@@ -1037,6 +1041,8 @@
         const isVoice = isObj && !!pg.說話者 && !isGlitch;      // 主角的話：淡粉色
         txt.classList.toggle("caption-voice", isVoice);
         txt.classList.toggle("caption-glitch", isGlitch);
+        txt.classList.toggle("caption-gold", isObj && !!pg.金色);
+        layer.classList.toggle("gold-bg", isObj && !!pg.金色);   // 金色的字：背景慢慢暗成溫暖的夜色，讓字亮起來
         txt.textContent = "";
         if (isObj) {
           // 說話者：「主角」會顯示玩家取的名字；「命運」等其他名字照寫
@@ -1093,7 +1099,8 @@
         await sleep(1000);
         clearInterval(this._capGlitch);
       }
-      txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice", "caption-glitch");
+      txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice", "caption-glitch", "caption-warm", "caption-gold");
+      layer.classList.remove("gold-bg");
       txt.style.color = "";
       txt.style.textShadow = "";
       layer.classList.remove("on");

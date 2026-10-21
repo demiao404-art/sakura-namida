@@ -643,6 +643,9 @@
           const pc = this.config.完美結局字幕;
           if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
           if (this.ui.credits) await this.ui.credits(this.config.工作人員名單);
+          // 謝幕之後：命運和主角的最後一段對話（溫暖的背景）
+          const after = this.config.謝幕後對話;
+          if (Array.isArray(after) && after.length) await this.ui.captions(after, { style: "warm" });
         }
         return this.exitToTitle({ from: "perfect", first });
       }
