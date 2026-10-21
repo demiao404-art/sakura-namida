@@ -57,7 +57,7 @@
       }
       if (name === "updates") {
         this.renderUpdates();
-        const U = this.cfg.更新紀錄 || [];
+        const U = this.visibleUpdates();
         if (U[0]) Store.meta.updatesSeen = U[0].版本;   // 看過最新的版本：紅點消失
         Store.save("notice");
         this.updateGalleryDot();
@@ -703,11 +703,21 @@
 
     // ---------- 更新紀錄 ----------
     // 寫在 config/game-config.js 的「更新紀錄」，最新的版本放最上面。注意不要寫出還沒玩到的劇情。
+    // 涉及絕望線、希望線的內容加上「通關後才顯示: true」，還沒變成「櫻咲」的玩家就看不到
+    // （可以加在某一行，也可以加在整個版本；一個版本裡的內容全部看不到時，那個版本也不顯示）
+    visibleUpdates() {
+      const done = !!Store.meta.perfect;
+      const ok = (x) => done || !(x && typeof x === "object" && x.通關後才顯示);
+      return (this.cfg.更新紀錄 || [])
+        .filter(ok)
+        .map((u) => ({ ...u, 內容: (u.內容 || []).filter(ok).map((t) => (typeof t === "object" ? t.文字 : t)) }))
+        .filter((u) => u.內容.length || u.說明);
+    },
     renderUpdates() {
       const body = $("updates-body");
       body.textContent = "";
       const wrap = el("div", "updates");
-      (this.cfg.更新紀錄 || []).forEach((u, i) => {
+      this.visibleUpdates().forEach((u, i) => {
         const sec = el("section", "update-item" + (i === 0 ? " latest" : ""));
         const h = el("h3", null, "");
         h.append(el("span", "uv", "v" + u.版本));
@@ -749,7 +759,7 @@
       if (!b) return;
       b.classList.toggle("has-new", this.galleryKeys().some((k) => this.isNewInGallery(k)));
       // 更新紀錄：有新版本、還沒看過的時候有紅點
-      const U = this.cfg.更新紀錄 || [];
+      const U = this.visibleUpdates();
       const u = $("tm-updates");
       if (u) { u.hidden = !U.length; u.classList.toggle("has-new", !!U[0] && Store.meta.updatesSeen !== U[0].版本); }
       // 作者的話：第一次出現時也有紅點，打開看過就消失
