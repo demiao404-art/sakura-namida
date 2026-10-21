@@ -89,12 +89,15 @@
         if (!line || line.startsWith("//")) continue;
 
         // 行首的 [希望輪] 等：這一行只在該階段出現
-        let onlyPhase = null, inner = false, onlyIf = null;
+        let onlyPhase = null, inner = false, onlyIf = null, big = false;
         let body = line;
         for (;;) {
           // 行首的 [若 條件]：條件成立時，這一行才會出現
           const im = body.match(/^[\[［]若\s+([^\]］]+)[\]］]\s*(.+)$/);
           if (im) { onlyIf = onlyIf ? onlyIf + " 且 " + im[1].trim() : im[1].trim(); body = im[2].trim(); continue; }
+          // 行首的 [大字]：這一句台詞用放大的字顯示
+          const bm = body.match(/^[\[［]大字[\]］]\s*(.+)$/);
+          if (bm) { big = true; body = bm[1].trim(); continue; }
           const pm = body.match(/^[\[［](一般輪|絕望輪|希望輪|非希望輪|心聲)[\]］]\s*(.+)$/);
           if (!pm) break;
           if (pm[1] === "心聲") inner = true; else onlyPhase = pm[1].replace("輪", "");
@@ -106,6 +109,7 @@
           if (onlyPhase) cmds[k].onlyPhase = onlyPhase;
           if (onlyIf) cmds[k].onlyIf = onlyIf;
           if (inner) cmds[k].inner = true;
+          if (big) cmds[k].big = true;
         }
         continue;
       }

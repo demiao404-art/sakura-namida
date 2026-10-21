@@ -406,7 +406,7 @@
               return { name: nm, color: col, text: this.interpolate(l.text) };
             });
           }
-          await ui.say({ who, name, color, text, key: c.key, read: Store.isRead(c.key), inner });
+          await ui.say({ who, name, color, text, key: c.key, read: Store.isRead(c.key), inner, big: !!c.big });
           alive();
           Store.markRead(c.key);
           return;

@@ -471,6 +471,7 @@
         this.tbName.textContent = o.name ? `【${o.name}】` : "";
         this.tbName.style.setProperty("--name-color", o.color || "var(--sakura)");
         this.tbText.classList.toggle("narr", !o.name);
+        this.tbText.classList.toggle("big", !!o.big);
         this.tbText.textContent = "";
         const chars = [...o.text];
         const frag = document.createDocumentFragment();
