@@ -931,8 +931,26 @@
       for (let i = 0; i < pages.length; i++) {
         const pg = pages[i];
         txt.textContent = "";
-        txt.classList.toggle("caption-voice", !!(pg && typeof pg === "object"));
-        if (pg && typeof pg === "object") {
+        const isVoice = !!(pg && typeof pg === "object" && pg.說話者);
+        const isGlitch = !!(pg && typeof pg === "object" && pg.雜訊);
+        txt.classList.toggle("caption-voice", isVoice);
+        txt.classList.toggle("caption-glitch", isGlitch);
+        if (isGlitch) {
+          // 雜訊：字一直在抖，偶爾有幾個字被打亂一下
+          const full = pageText(pg);
+          txt.textContent = full;
+          const noise = "▒░▓＃％※∅ΔΣ";
+          clearInterval(this._capGlitch);
+          this._capGlitch = setInterval(() => {
+            if (Math.random() < 0.55) { txt.textContent = full; return; }
+            const a = full.split("");
+            for (let k = 0; k < 1 + Math.floor(Math.random() * 3); k++) {
+              const i = Math.floor(Math.random() * a.length);
+              if (a[i] !== "\n") a[i] = noise[Math.floor(Math.random() * noise.length)];
+            }
+            txt.textContent = a.join("");
+          }, 110);
+        } else if (pg && typeof pg === "object") {
           const who = pg.說話者 === "主角" ? (Store.meta.playerName || "我") : pg.說話者 || "";
           if (who) { const n = document.createElement("span"); n.className = "caption-speaker"; n.textContent = who; txt.append(n); }
           txt.append(document.createTextNode(pageText(pg)));
@@ -967,8 +985,9 @@
         }
         txt.classList.remove("on");
         await sleep(1000);
+        clearInterval(this._capGlitch);
       }
-      txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice");
+      txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice", "caption-glitch");
       txt.style.color = "";
       txt.style.textShadow = "";
       layer.classList.remove("on");

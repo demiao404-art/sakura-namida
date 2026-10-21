@@ -633,7 +633,7 @@
         await this.ui.endingSequence("despair");
         await this.deathNotice();
         const cap = this.config.進入希望輪字幕;
-        await this.ui.captions(Array.isArray(cap) ? cap : cap && cap.文字 ? [cap.文字] : []);
+        await this.ui.captions(Array.isArray(cap) ? cap : cap && cap.文字 ? [cap] : []);
         return this.exitToTitle({ from: "despair" });
       }
 
