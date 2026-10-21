@@ -626,7 +626,7 @@
           if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
           if (this.ui.credits) await this.ui.credits(this.config.工作人員名單);
         }
-        return this.exitToTitle({ from: "perfect" });
+        return this.exitToTitle({ from: "perfect", first });
       }
 
       // 絕望輪：只有走到結局 8（理想的道別）→「又一次？」（[結局 絕望]），才會進入希望輪。

@@ -1137,3 +1137,14 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
   81%  { transform: translate(0, 0); text-shadow: 2px 0 rgba(255, 60, 90, 0.55), -2px 0 rgba(60, 200, 255, 0.55); }
 }
 @media (prefers-reduced-motion: reduce) { .ending-text.caption.caption-glitch { animation: none; } }
+
+/* 第一次走完希望結局：「淚」化為白光，再變成「咲」 */
+.title-bloom { display: inline-block; transition: color 2s ease, text-shadow 2s ease, filter 2s ease, transform 2s ease; }
+.title-bloom.glow {
+  color: #fff;
+  filter: blur(2px) brightness(1.4);
+  transform: scale(1.06);
+  text-shadow: 0 0 20px #fff, 0 0 60px #fff, 0 0 120px rgba(255, 236, 242, 0.95), 0 0 220px rgba(255, 214, 228, 0.8);
+}
+.title-bloom.swap { transition-duration: 3s; }
+@media (prefers-reduced-motion: reduce) { .title-bloom { transition-duration: 0.6s; } .title-bloom.glow { transform: none; filter: none; } }

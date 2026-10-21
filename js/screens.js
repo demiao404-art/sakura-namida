@@ -179,6 +179,7 @@
     // ---------- 標題 ----------
     initTitle() {
       $("title-main").textContent = this.cfg.標題 || "櫻";
+      document.title = (Store.meta.perfect && this.cfg.完美結局後標題) || this.cfg.標題 || "櫻";
       $("title-sub").textContent = this.cfg.副標題 || "";
       document.querySelector(".title-menu").addEventListener("click", async (e) => {
         const b = e.target.closest(".tm");
@@ -196,13 +197,44 @@
       });
     },
 
+    titleBloom(before, after) {
+      const box = $("title-main");
+      let k = 0;
+      while (k < before.length && k < after.length && before[k] === after[k]) k++;
+      box.textContent = before.slice(0, k);
+      const span = document.createElement("span");
+      span.className = "title-bloom";
+      span.textContent = before.slice(k);
+      box.append(span);
+      document.title = before;
+      clearTimeout(this._bloomT);
+      this._bloomT = setTimeout(() => {
+        span.classList.add("glow");                       // 化為白光
+        this._bloomT = setTimeout(() => {
+          span.textContent = after.slice(k);              // 在光裡變成「咲」
+          document.title = after;
+          span.classList.add("swap");
+          this._bloomT = setTimeout(() => span.classList.remove("glow"), 600);  // 光慢慢退去
+        }, 2200);
+      }, 2000);
+    },
+
     goTitle(opts) {
       this.closeAll();
       UI.setPlaying(false);
       UI.resetScene();
       const ts = this.engine.titleState();
       Title.render(ts);
-      $("title-main").textContent = (Store.meta.perfect && this.cfg.完美結局後標題) || this.cfg.標題 || "櫻";
+      const before = this.cfg.標題 || "櫻";
+      const after = (Store.meta.perfect && this.cfg.完美結局後標題) || before;
+      if (opts && opts.from === "perfect" && opts.first && after !== before) {
+        // 第一次走完希望結局：先顯示「櫻淚」，「淚」化為白光，再變成「咲」
+        this.titleBloom(before, after);
+      } else {
+        clearTimeout(this._bloomT);
+        $("title-main").textContent = after;
+        document.title = after;
+      }
       // 標題畫面的音樂：跟著輪迴的階段改變（設定在 game-config.js 的「標題音樂」）
       const tm = this.cfg.標題音樂 || {};
       const m = Store.meta;
