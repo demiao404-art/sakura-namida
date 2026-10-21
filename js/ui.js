@@ -83,13 +83,13 @@
     // ---------- 右上角的「生存可能」 ----------
     // 一般輪：？？？？：0%　→ 集滿所有結局時，用雜訊特效變成「生存可能：0%」
     // 絕望輪：生存可能：0%
-    // 希望輪：開場之後 5%，每做對一個關鍵選擇就往上加（劇本裡的 [生存可能 N]），隔年春天的結局是 100%
-    // 完美結局之後的重玩：生存可能：？%
+    // 希望輪：第 30 天之前 0%，主角下定決心後 1%，之後用劇本裡的 [生存可能 N] 往上加，隔年春天的結局是 100%
+    // 櫻咲之後的「絕望輪迴」（一般線的回顧）：生存可能：0%
     survivalText(phase) {
       const m = Store.meta;
       const st = window.__engine && window.__engine.state;
       if (phase === "希望") return ["生存可能", String((st && st.survival) || 0)];
-      if (m.perfect) return ["生存可能", "？"];
+      if (m.perfect) return ["生存可能", "0"];
       if (phase === "絕望") return ["生存可能", "0"];
       const need = window.__engine ? window.__engine.endingsNeeded : 99;
       return (m.endings || []).length >= need ? ["生存可能", "0"] : ["？？？？", "0"];
