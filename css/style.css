@@ -1182,3 +1182,4 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .title-menu.compact { gap: 0; }
 .title-menu.compact .tm { font-size: 27px; padding: 3px 0; }
 .title-menu.compact .tm .en { font-size: 20px; }
+.ending-text.caption.caption-glitch .caption-speaker { color: rgba(216, 212, 214, 0.6); }

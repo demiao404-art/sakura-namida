@@ -931,29 +931,34 @@
       for (let i = 0; i < pages.length; i++) {
         const pg = pages[i];
         txt.textContent = "";
-        const isVoice = !!(pg && typeof pg === "object" && pg.說話者);
-        const isGlitch = !!(pg && typeof pg === "object" && pg.雜訊);
+        const isObj = !!(pg && typeof pg === "object");
+        const isGlitch = isObj && !!pg.雜訊;
+        const isVoice = isObj && !!pg.說話者 && !isGlitch;      // 主角的話：淡粉色
         txt.classList.toggle("caption-voice", isVoice);
         txt.classList.toggle("caption-glitch", isGlitch);
-        if (isGlitch) {
-          // 雜訊：字一直在抖，偶爾有幾個字被打亂一下
-          const full = pageText(pg);
-          txt.textContent = full;
-          const noise = "▒░▓＃％※∅ΔΣ";
-          clearInterval(this._capGlitch);
-          this._capGlitch = setInterval(() => {
-            if (Math.random() < 0.55) { txt.textContent = full; return; }
-            const a = full.split("");
-            for (let k = 0; k < 1 + Math.floor(Math.random() * 3); k++) {
-              const i = Math.floor(Math.random() * a.length);
-              if (a[i] !== "\n") a[i] = noise[Math.floor(Math.random() * noise.length)];
-            }
-            txt.textContent = a.join("");
-          }, 110);
-        } else if (pg && typeof pg === "object") {
+        txt.textContent = "";
+        if (isObj) {
+          // 說話者：「主角」會顯示玩家取的名字；「命運」等其他名字照寫
           const who = pg.說話者 === "主角" ? (Store.meta.playerName || "我") : pg.說話者 || "";
           if (who) { const n = document.createElement("span"); n.className = "caption-speaker"; n.textContent = who; txt.append(n); }
-          txt.append(document.createTextNode(pageText(pg)));
+          const body = document.createElement("span");
+          body.textContent = pageText(pg);
+          txt.append(body);
+          if (isGlitch) {
+            // 雜訊：字一直在抖，偶爾有幾個字被打亂一下（名字不動）
+            const full = pageText(pg);
+            const noise = "▒░▓＃％※∅ΔΣ";
+            clearInterval(this._capGlitch);
+            this._capGlitch = setInterval(() => {
+              if (Math.random() < 0.55) { body.textContent = full; return; }
+              const a = full.split("");
+              for (let k = 0; k < 1 + Math.floor(Math.random() * 3); k++) {
+                const i = Math.floor(Math.random() * a.length);
+                if (a[i] !== "\n") a[i] = noise[Math.floor(Math.random() * noise.length)];
+              }
+              body.textContent = a.join("");
+            }, 110);
+          }
         } else txt.textContent = pg;
         void txt.offsetWidth;
         txt.classList.add("on");
