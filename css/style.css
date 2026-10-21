@@ -1167,3 +1167,18 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
   animation: tm-dot 1.8s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .gallery-card.is-new::after { animation: none; } }
+
+/* 更新紀錄 */
+.updates { max-width: 980px; margin: 10px auto 40px; }
+.update-item { padding: 6px 0 22px; border-bottom: 1px solid var(--line-soft); margin-bottom: 22px; }
+.update-item h3 { display: flex; align-items: baseline; gap: 18px; margin: 0 0 12px; font-weight: 600; }
+.update-item .uv { font-family: var(--latin); font-size: 32px; letter-spacing: 0.04em; color: var(--sakura); }
+.update-item .ud { font-family: var(--latin); font-size: 20px; opacity: 0.6; }
+.update-item.latest .uv::after { content: "最新"; margin-left: 12px; font-size: 16px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--sakura); vertical-align: middle; }
+.update-item ul { margin: 0; padding-left: 1.4em; }
+.update-item li, .update-item .un { font-size: 22px; line-height: 2; letter-spacing: 0.05em; }
+
+/* 標題選單：選項 8 個以上時排緊一點 */
+.title-menu.compact { gap: 0; }
+.title-menu.compact .tm { font-size: 27px; padding: 3px 0; }
+.title-menu.compact .tm .en { font-size: 20px; }

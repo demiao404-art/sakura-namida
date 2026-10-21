@@ -55,6 +55,13 @@
         Store.save("notice");
         this.updateGalleryDot();
       }
+      if (name === "updates") {
+        this.renderUpdates();
+        const U = this.cfg.更新紀錄 || [];
+        if (U[0]) Store.meta.updatesSeen = U[0].版本;   // 看過最新的版本：紅點消失
+        Store.save("notice");
+        this.updateGalleryDot();
+      }
       if (name === "afterword") {
         this.renderAfterword();
         Store.meta.afterwordSeen = true;   // 看過了：紅點消失
@@ -205,6 +212,7 @@
         if (act === "cloud") this.open("cloud");
         if (act === "gallery") this.open("gallery");
         if (act === "afterword") this.open("afterword");
+        if (act === "updates") this.open("updates");
       });
     },
 
@@ -253,8 +261,8 @@
       document.querySelector('.tm[data-act="continue"]').disabled = !Store.getSlot("auto");
       $("tm-cloud").hidden = !Cloud.available() && !this.cfg.開發模式;
       // 作者的話：希望結局（完美結局）達成之後，才出現在標題畫面
-      this.updateGalleryDot();
       $("tm-afterword").hidden = !(Store.meta.perfect && (this.cfg.作者的話 || []).length);
+      this.updateGalleryDot();
       $("title-foot").textContent = this.cfg.開發模式 ? "開發模式　F2 開啟開發者工具" : "";
       this.showBase("title");
       if (Store.meta.innerUnlockedNotice) {
@@ -693,6 +701,27 @@
     // ---------- 雲端 ----------
     renderCloud() { Cloud.render($("cloud-body")); },
 
+    // ---------- 更新紀錄 ----------
+    // 寫在 config/game-config.js 的「更新紀錄」，最新的版本放最上面。注意不要寫出還沒玩到的劇情。
+    renderUpdates() {
+      const body = $("updates-body");
+      body.textContent = "";
+      const wrap = el("div", "updates");
+      (this.cfg.更新紀錄 || []).forEach((u, i) => {
+        const sec = el("section", "update-item" + (i === 0 ? " latest" : ""));
+        const h = el("h3", null, "");
+        h.append(el("span", "uv", "v" + u.版本));
+        if (u.日期) h.append(el("span", "ud", u.日期));
+        sec.append(h);
+        if (u.說明) sec.append(el("p", "un", u.說明));
+        const ul = el("ul");
+        (u.內容 || []).forEach((t) => ul.append(el("li", null, t)));
+        sec.append(ul);
+        wrap.append(sec);
+      });
+      body.append(wrap);
+    },
+
     renderAfterword() {
       const body = $("afterword-body");
       body.textContent = "";
@@ -719,9 +748,16 @@
       const b = document.querySelector('.tm[data-act="gallery"]');
       if (!b) return;
       b.classList.toggle("has-new", this.galleryKeys().some((k) => this.isNewInGallery(k)));
+      // 更新紀錄：有新版本、還沒看過的時候有紅點
+      const U = this.cfg.更新紀錄 || [];
+      const u = $("tm-updates");
+      if (u) { u.hidden = !U.length; u.classList.toggle("has-new", !!U[0] && Store.meta.updatesSeen !== U[0].版本); }
       // 作者的話：第一次出現時也有紅點，打開看過就消失
       const a = $("tm-afterword");
       if (a) a.classList.toggle("has-new", !!Store.meta.perfect && !Store.meta.afterwordSeen);
+      // 選項太多（8 個以上）時，選單排得緊一點，才不會碰到標題
+      const menu = document.querySelector(".title-menu");
+      if (menu) menu.classList.toggle("compact", [...menu.querySelectorAll(".tm")].filter((t) => !t.hidden).length >= 8);
     },
 
     renderGallery() {
