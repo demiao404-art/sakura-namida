@@ -740,8 +740,9 @@
       const body = $("staff-body");
       body.textContent = "";
       const wrap = el("div", "staff");
-      (this.cfg.工作人員名單 || []).forEach(([role, ...names]) => {
-        if (!role) return;
+      (this.cfg.工作人員名單 || []).forEach(([role, ...raw]) => {
+        const names = UI.staffNames(raw);
+        if (!role || !names.length) return;
         const row = el("div", "staff-row");
         row.append(el("div", "staff-role", role), el("div", "staff-names", names.join("\n")));
         wrap.append(row);

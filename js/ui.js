@@ -866,6 +866,12 @@
     },
 
     // ---------- 工作人員名單（慢慢往上捲，點一下可以結束） ----------
+    // 名單裡的名字：{ 名字, 通關後才顯示: true } 只有走完希望線的玩家看得到
+    staffNames(names) {
+      const done = !!Store.meta.perfect;
+      return (names || []).filter((n) => done || !(n && typeof n === "object" && n.通關後才顯示)).map((n) => (n && typeof n === "object" ? n.名字 : n));
+    },
+
     async credits(list) {
       if (!list || !list.length) return;
       const layer = $("ending-layer");
@@ -874,7 +880,9 @@
       const inner = document.createElement("div");
       inner.className = "credits-inner";
       list.forEach((sec, i) => {
-        const [role, ...names] = sec;
+        const [role, ...rawNames] = sec;
+        const names = UI.staffNames(rawNames);
+        if (role && !names.length) return;
         const b = document.createElement("div");
         b.className = "cr-sec" + (!role && i === 0 ? " cr-title" : !role ? " cr-end" : "");
         if (role) { const r = document.createElement("div"); r.className = "cr-role"; r.textContent = role; b.append(r); }
