@@ -240,6 +240,11 @@
       this.state = this.freshState(phase);
       this.ui.resetScene();
       this.ui.backlog.length = 0;
+      // 櫻咲之後：櫻已經脫離輪迴，新遊戲是「回顧那段時間」
+      if (phase === "一般" && Store.meta.perfect) {
+        const cap = this.config.回顧開場字幕;
+        if (Array.isArray(cap) && cap.length) await this.ui.captions(cap, { blackFirst: 1000 });
+      }
       if (phase === "希望") {
         await this.hopeIntro();
         // 希望輪一路都是 0%，直到第 30 天主角下定決心（[生存可能 1]）才開始往上
