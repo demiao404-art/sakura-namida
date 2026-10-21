@@ -234,13 +234,16 @@
       };
     }
 
-    async newGame() {
+    // mode：櫻咲之後的「回顧」— "一般"（絕望輪迴：重新體驗一般線）或 "希望"（打破枷鎖：重播希望線）
+    async newGame(mode) {
       this.stop();
-      const phase = this.currentPhase();
+      const replay = !!(mode && Store.meta.perfect);
+      const phase = replay ? mode : this.currentPhase();
       this.state = this.freshState(phase);
+      if (replay) this.state.replay = true;
       this.ui.resetScene();
       this.ui.backlog.length = 0;
-      // 櫻咲之後：櫻已經脫離輪迴，新遊戲是「回顧那段時間」
+      // 櫻咲之後的「絕望輪迴」：櫻已經脫離輪迴，這是回顧那段時間
       if (phase === "一般" && Store.meta.perfect) {
         const cap = this.config.回顧開場字幕;
         if (Array.isArray(cap) && cap.length) await this.ui.captions(cap, { blackFirst: 1000 });
@@ -266,10 +269,7 @@
       this.stop();
       this.state = clone(st);
       // 舊版存檔（還沒有「生存可能」的數值）：依照走到的天數補上
-      // （舊版在第 30 天之前會一路加到 70%，現在第 30 天之前都是 0%）
-      if (this.state.phase === "希望" && (typeof this.state.survival !== "number" || this.state.survival < 80)) {
-        if (this.state.survival !== 1) this.state.survival = 0;
-      }
+      if (this.state.phase === "希望" && typeof this.state.survival !== "number") this.state.survival = 0;
       // 希望輪選錯、回到標題之後，再試一次：先演出開場字幕
       const retry = this.state.hopeRetry;
       delete this.state.hopeRetry;
@@ -571,7 +571,8 @@
         (!o.cond || this.evalCond(o.cond)));
       const items = visible.map((o) => ({
         text: this.interpolate(o.text),
-        disabled: phase === "希望" && greyed.has(o.oid),
+        // 「打破枷鎖」（希望線的重播）：錯誤的選項全部變灰，那些路已經走過了
+        disabled: phase === "希望" && (greyed.has(o.oid) || (!!st.replay && !!o.wrong)),
         // 希望輪：錯誤的選項帶一點點雜訊（櫻記得，那條路走下去會發生什麼）
         glitch: phase === "希望" && !!o.wrong,
         // 選項旁邊的感情變化：希望輪不顯示（不能讓答案變得太明顯），設定裡可以關掉

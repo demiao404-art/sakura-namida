@@ -262,6 +262,11 @@
       const m = Store.meta;
       AudioMgr.bgm((m.perfect ? tm.完美結局之後 : m.despairDone ? tm.絕望輪之後 : tm.平常) || null);
       document.querySelector('.tm[data-act="continue"]').disabled = !Store.getSlot("auto");
+      // 櫻咲之後，「開始」變成「回顧」
+      const sl = document.querySelector('.tm[data-act="start"] .tm-label');
+      const se = document.querySelector('.tm[data-act="start"] .en');
+      if (sl) sl.textContent = Store.meta.perfect ? "回顧" : "開始";
+      if (se) se.textContent = Store.meta.perfect ? "Review" : "Start";
       $("tm-cloud").hidden = !Cloud.available() && !this.cfg.開發模式;
       // 作者的話：希望結局（完美結局）達成之後，才出現在標題畫面
       $("tm-afterword").hidden = !(Store.meta.perfect && (this.cfg.作者的話 || []).length);
@@ -276,6 +281,19 @@
     },
 
     async startFlow() {
+      // 櫻咲之後，「開始」變成「回顧」：選擇要重新體驗哪一段
+      let mode = null;
+      if (Store.meta.perfect) {
+        mode = await this.confirm({
+          title: "回顧",
+          text: "櫻已經離開了輪迴。\n要回顧哪一段時間呢？\n\n" +
+            "絕望輪迴：重新體驗一般線的三十天。\n" +
+            "打破枷鎖：重播希望線，從頭走到那個春天。\n\n" +
+            "回顧的時候，可以聽見櫻的心聲。",
+          buttons: [{ label: "取消", value: false }, { label: "絕望輪迴", value: "一般" }, { label: "打破枷鎖", value: "希望", kind: "primary" }],
+        });
+        if (!mode) return;
+      }
       if (Store.getSlot("auto")) {
         const ok = await this.confirm({
           title: "重新開始",
@@ -285,8 +303,8 @@
         if (!ok) return;
         Store.deleteSlot("auto");
       }
-      if (!Store.meta.playerName) { this.askName(() => this.startGame()); return; }
-      this.startGame();
+      if (!Store.meta.playerName) { this.askName(() => this.startGame(mode)); return; }
+      this.startGame(mode);
     },
 
     // 第一次開始遊戲（或第一次讀檔繼續）：告訴玩家「選項的感情變化」可以在設定裡打開，但建議先不要
@@ -308,12 +326,12 @@
       });
     },
 
-    async startGame() {
+    async startGame(mode) {
       await this.choiceFxNotice();
       this.showBase(null);
       Title.stop();
       UI.setPlaying(true);
-      this.engine.newGame();
+      this.engine.newGame(mode || undefined);
     },
 
     async loadSlot(slot) {
