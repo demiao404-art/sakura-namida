@@ -1092,9 +1092,10 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .gallery-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
 .gallery-head .gallery-count { margin: 0; }
 .credits-roll { position: absolute; inset: 0; overflow: hidden; z-index: 2; }
-.credits-inner { position: absolute; left: 0; right: 0; top: 0; text-align: center; color: var(--paper); }
+/* 謝幕：白底，字是櫻的髮色（紫） */
+.credits-inner { position: absolute; left: 0; right: 0; top: 0; text-align: center; color: #7a4c78; }
 .cr-sec { margin: 0 auto 64px; }
-.cr-role { white-space: pre-line; line-height: 1.8; font-size: 20px; letter-spacing: 0.4em; color: #e9a3b6; opacity: 0.85; margin-bottom: 12px; }
+.cr-role { white-space: pre-line; line-height: 1.8; font-size: 20px; letter-spacing: 0.4em; color: #946a91; margin-bottom: 12px; }
 .cr-name { font-size: 32px; letter-spacing: 0.25em; line-height: 1.7; }
 .cr-title .cr-name { font-size: 96px; letter-spacing: 0.2em; margin-bottom: 60px; }
 .cr-end { margin-top: 140px; }

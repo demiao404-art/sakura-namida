@@ -997,7 +997,7 @@
       });
       roll.append(inner);
       layer.style.transition = "opacity 1.2s ease";
-      layer.style.background = "#0b080d";
+      layer.style.background = "#ffffff";   // 謝幕：白底，櫻的髮色（紫）的字
       layer.append(roll);
       layer.classList.add("on");
       this.textbox.classList.add("hidden");
