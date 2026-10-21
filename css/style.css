@@ -1235,3 +1235,4 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .rw-words span.big { color: #fff; letter-spacing: 0.4em; }
 @media (prefers-reduced-motion: reduce) { .rw-screen.jolt, .rw-mark { animation: none; } .flashback { transition: opacity 140ms ease; transform: none; } }
 #stage.rewinding #stats-hud, #stage.rewinding #survival, #stage.rewinding #quickmenu { opacity: 0; transition: opacity 200ms ease; }
+.rw-noise { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.12; mix-blend-mode: screen; image-rendering: pixelated; pointer-events: none; }

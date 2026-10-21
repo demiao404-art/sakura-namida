@@ -781,7 +781,20 @@
           const scr = document.createElement("div"); scr.className = "rw-screen";
           const mark = document.createElement("div"); mark.className = "rw-mark"; mark.textContent = "◀◀";
           const words = document.createElement("div"); words.className = "rw-words";
-          box.append(scr, words, mark);
+          // 雜訊：小畫布每一格重新撒一次雜點，放大鋪滿畫面
+          const nz = document.createElement("canvas"); nz.className = "rw-noise"; nz.width = 320; nz.height = 180;
+          box.append(scr, nz, words, mark);
+          const nctx = nz.getContext("2d");
+          const img = nctx.createImageData(320, 180);
+          let noiseOn = true;
+          const drawNoise = () => {
+            if (!noiseOn) return;
+            const d = img.data;
+            for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+            nctx.putImageData(img, 0, 0);
+            requestAnimationFrame(drawNoise);
+          };
+          drawNoise();
           this.fxLayer.append(box);
           this.stage.classList.add("rewinding");
           void box.offsetWidth; box.classList.add("on");
@@ -796,7 +809,7 @@
             if (word) {
               const w = document.createElement("span");
               w.textContent = word;
-              const big = step >= bgs.length - 3;
+              const big = step >= bgs.length - 4;
               w.style.left = (big ? 50 : 12 + Math.random() * 76) + "%";
               w.style.top = (big ? 50 : 12 + Math.random() * 70) + "%";
               w.style.fontSize = (big ? 64 + step * 2 : 26 + Math.random() * 30) + "px";
@@ -805,9 +818,12 @@
               words.append(w);
             }
             step++;
-            await sleep(Math.max(170, 420 - step * 22));
+            // 一開始半秒一格，之後越來越快；雜訊也越來越重
+            nz.style.opacity = Math.min(0.42, 0.12 + step * 0.015);
+            await sleep(Math.max(50, Math.round(500 * Math.pow(0.82, step - 1))));
           }
-          await sleep(500);
+          await sleep(350);
+          noiseOn = false;
           this.flash.style.transitionDuration = "120ms"; this.flash.classList.add("on");
           await sleep(180);
           box.remove();
