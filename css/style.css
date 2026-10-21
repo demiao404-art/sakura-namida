@@ -803,7 +803,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 
 /* ---------------- 回顧 ---------------- */
 .log-list { position: absolute; inset: 0; padding-right: 20px; }
-.log-item { display: grid; grid-template-columns: 180px 1fr; gap: 26px; padding: 18px 0; border-bottom: 1px solid var(--line-soft); }
+.log-item { display: grid; grid-template-columns: 180px 1fr auto; gap: 26px; padding: 18px 0; border-bottom: 1px solid var(--line-soft); }
 .log-name { font-size: 24px; text-align: right; letter-spacing: 0.06em; }
 .log-text { font-size: 25px; line-height: 1.7; letter-spacing: 0.03em; white-space: pre-wrap; color: #f0e8eb; -webkit-user-select: text; user-select: text; }
 .log-item.choice .log-text { color: var(--sakura); }
@@ -1113,3 +1113,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 /* 黑幕中主角說的話 */
 .ending-text.caption.caption-voice { color: #f6d7df; letter-spacing: 0.2em; padding-left: 0.2em; }
 .caption-speaker { display: block; font-size: 22px; letter-spacing: 0.3em; color: rgba(246, 215, 223, 0.6); margin-bottom: 18px; }
+
+/* 回顧裡還沒打開的心聲 */
+.log-heart { align-self: center; background: none; border: 1px solid rgba(242, 182, 200, 0.5); color: #f2b6c8; border-radius: 999px; width: 44px; height: 44px; font-size: 20px; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+.log-heart:hover, .log-heart:focus-visible { background: rgba(242, 182, 200, 0.15); transform: scale(1.08); }

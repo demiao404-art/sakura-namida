@@ -608,7 +608,7 @@
     },
 
     // ---------- 回顧 ----------
-    renderLog() {
+    renderLog(keepScroll) {
       const list = $("log-list");
       list.textContent = "";
       if (!UI.backlog.length) { list.append(el("div", "log-empty", "還沒有內容")); return; }
@@ -617,9 +617,27 @@
         const n = el("div", "log-name", b.name ? `【${b.name}】` : "");
         if (b.color) n.style.color = b.color;
         row.append(n, el("div", "log-text", b.text));
+        // 還沒打開過的心聲：在回顧裡點愛心，就把心聲接在這句台詞後面
+        if (b.innerLines && b.innerLines.length && !b.innerOpened) {
+          const h = el("button", "log-heart", "♥");
+          h.title = "聽見櫻的心聲";
+          h.setAttribute("aria-label", "打開櫻的心聲");
+          h.addEventListener("click", (e) => {
+            e.stopPropagation();
+            b.innerOpened = true;
+            if (UI.line && UI.line.entry === b) UI.line.innerLogged = true;
+            const at = UI.backlog.indexOf(b);
+            const rows = b.innerLines.map((ln) => ({ name: ln.name, color: ln.color, text: ln.text, inner: true }));
+            if (at >= 0) UI.backlog.splice(at + 1, 0, ...rows);
+            const top = list.scrollTop;
+            this.renderLog(true);
+            list.scrollTop = top;
+          });
+          row.append(h);
+        }
         list.append(row);
       });
-      requestAnimationFrame(() => (list.scrollTop = list.scrollHeight));
+      if (!keepScroll) requestAnimationFrame(() => (list.scrollTop = list.scrollHeight));
       if (!list._bound) {
         list._bound = true;
         list.addEventListener("wheel", (e) => {

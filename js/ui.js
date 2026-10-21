@@ -462,13 +462,16 @@
         next.className = "tb-next";
         frag.append(next);
         this.tbText.append(frag);
-        this.backlog.push({ name: o.name, color: o.color, text: o.text });
+        const entry = { name: o.name, color: o.color, text: o.text };
+        // 這句台詞後面藏著心聲的話，回顧裡也能點愛心打開（怕玩家按太快錯過）
+        if (o.inner && o.inner.length) entry.innerLines = o.inner;
+        this.backlog.push(entry);
         if (this.backlog.length > 300) this.backlog.shift();
 
         // 快進到沒讀過的地方就停下
         if (this.skipping && !this.canSkip(o)) { this.skip = false; this.updateBadge(); }
 
-        this.line = { spans, idx: 0, typing: true, next, read: o.read, len: chars.length, resolve, timer: null, inner: o.inner || null };
+        this.line = { spans, idx: 0, typing: true, next, read: o.read, len: chars.length, resolve, timer: null, inner: o.inner || null, entry };
         this.heart.hidden = !(o.inner && o.inner.length);
         this.heart.classList.remove("seen");
         this.positionHeart();
@@ -546,11 +549,12 @@
       const saved = document.createDocumentFragment();
       while (this.tbText.firstChild) saved.append(this.tbText.firstChild);
       this.innerMode = {
-        i: -1, lines: l.inner, saved, logged: !!l.innerLogged,
+        i: -1, lines: l.inner, saved, logged: !!(l.innerLogged || (l.entry && l.entry.innerOpened)),
         name: this.tbName.textContent, color: this.tbName.style.getPropertyValue("--name-color"),
         narr: this.tbText.classList.contains("narr"),
       };
       l.innerLogged = true;
+      if (l.entry) l.entry.innerOpened = true;
       this.textbox.classList.add("inner");
       this.heart.hidden = true;
       this.nextInner();
