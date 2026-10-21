@@ -94,6 +94,7 @@
       version: 1,
       warningAccepted: lm.warningAccepted || rm.warningAccepted,
       playerName: newer.playerName || lm.playerName || rm.playerName,
+      gallerySeen: newer.gallerySeen || lm.gallerySeen || rm.gallerySeen || "",
       loops: Math.max(lm.loops || 0, rm.loops || 0),
       endings: union(lm.endings, rm.endings),
       endingLog: mergeLog(lm.endingLog, rm.endingLog),

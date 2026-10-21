@@ -48,7 +48,13 @@
       if (name === "settings") this.renderSettings();
       if (name === "log") this.renderLog();
       if (name === "cloud") this.renderCloud();
-      if (name === "gallery") this.renderGallery();
+      if (name === "gallery") {
+        this.renderGallery();
+        // 看過了：紅點消失
+        Store.meta.gallerySeen = this.gallerySig();
+        Store.save("notice");
+        this.updateGalleryDot();
+      }
       if (name === "afterword") this.renderAfterword();
       if (name === "dev") this.renderDev();
       if (name === "warning") this.renderWarning(true);
@@ -242,6 +248,7 @@
       document.querySelector('.tm[data-act="continue"]').disabled = !Store.getSlot("auto");
       $("tm-cloud").hidden = !Cloud.available() && !this.cfg.開發模式;
       // 作者的話：希望結局（完美結局）達成之後，才出現在標題畫面
+      this.updateGalleryDot();
       $("tm-afterword").hidden = !(Store.meta.perfect && (this.cfg.作者的話 || []).length);
       $("title-foot").textContent = this.cfg.開發模式 ? "開發模式　F2 開啟開發者工具" : "";
       this.showBase("title");
@@ -692,6 +699,19 @@
     // ---------- 結局圖鑑 ----------
     // 拿到的結局顯示名字和一句話；還沒拿到的只顯示提示。
     // 集滿所有結局之後，會出現「絕望線」；希望線要走到完美結局之後才會出現（之前不給任何提示）。
+    // 結局圖鑑有新東西（新結局、絕望線、希望線、完美結局）時，標題畫面的「結局」旁邊出現紅點
+    gallerySig() {
+      const m = Store.meta;
+      return [...(m.endings || [])].sort().join(",") + "|" + (m.despairDone ? 1 : 0) + "|" + (m.perfect ? 1 : 0);
+    },
+    updateGalleryDot() {
+      const b = document.querySelector('.tm[data-act="gallery"]');
+      if (!b) return;
+      const m = Store.meta;
+      const has = (m.endings || []).length || m.despairDone || m.perfect;
+      b.classList.toggle("has-new", !!has && m.gallerySeen !== this.gallerySig());
+    },
+
     renderGallery() {
       const body = $("gallery-body");
       body.textContent = "";
