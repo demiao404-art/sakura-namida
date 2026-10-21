@@ -288,14 +288,28 @@
       this.startGame();
     },
 
-    startGame() {
+    // 第一次開始遊戲（或第一次讀檔繼續）：告訴玩家「選項的感情變化」可以在設定裡打開，但建議先不要
+    async choiceFxNotice() {
+      if (Store.meta.choiceFxNotice) return;
+      Store.meta.choiceFxNotice = true;
+      Store.save("notice");
+      await this.confirm({
+        title: "開始之前",
+        text: "選項下方可以顯示「選了之後，感情值會怎麼變化」。\n這個功能目前是關閉的，之後隨時可以在「設定」裡打開。\n\n不過，為了最好的遊戲體驗，建議你先不要打開，\n憑著自己的感覺，陪櫻走過這三十天。",
+        buttons: [{ label: "我知道了", value: true, kind: "primary" }],
+      });
+    },
+
+    async startGame() {
+      await this.choiceFxNotice();
       this.showBase(null);
       Title.stop();
       UI.setPlaying(true);
       this.engine.newGame();
     },
 
-    loadSlot(slot) {
+    async loadSlot(slot) {
+      await this.choiceFxNotice();
       this.closeAll();
       this.showBase(null);
       Title.stop();
@@ -566,7 +580,7 @@
       seg("skipMode", "快進", [["read", "只跳過已讀"], ["all", "全部"]]);
       seg("ambientPetals", "飄落花瓣", [[true, "開"], [false, "關"]]);
       seg("showStats", "感情值", [[true, "顯示"], [false, "隱藏"]]);
-      if (s.choiceFx === undefined) s.choiceFx = true;
+      if (s.choiceFx === undefined) s.choiceFx = false;
       seg("choiceFx", "選項的感情變化", [[true, "顯示"], [false, "隱藏"]]);
       if (Store.meta.perfect) {
         if (s.innerVoice === undefined) s.innerVoice = true;

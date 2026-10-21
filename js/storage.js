@@ -20,7 +20,7 @@
     boxOpacity: 78,
     ambientPetals: true,
     innerVoice: true,   // 完美結局之後才有作用
-    choiceFx: true,     // 選項旁邊顯示會改變的感情值
+    choiceFx: false,    // 選項旁邊顯示會改變的感情值（預設關閉，玩家可以在設定裡打開）
   };
 
   function defaultMeta() {
@@ -97,6 +97,7 @@
       playerName: newer.playerName || lm.playerName || rm.playerName,
       gallerySeenKeys: union(lm.gallerySeenKeys, rm.gallerySeenKeys),
       afterwordSeen: !!(lm.afterwordSeen || rm.afterwordSeen),
+      choiceFxNotice: !!(lm.choiceFxNotice || rm.choiceFxNotice),
       updatesSeen: newer.updatesSeen || lm.updatesSeen || rm.updatesSeen || "",
       loops: Math.max(lm.loops || 0, rm.loops || 0),
       endings: union(lm.endings, rm.endings),

@@ -571,7 +571,7 @@
         // 希望輪：錯誤的選項帶一點點雜訊（櫻記得，那條路走下去會發生什麼）
         glitch: phase === "希望" && !!o.wrong,
         // 選項旁邊的感情變化：希望輪不顯示（不能讓答案變得太明顯），設定裡可以關掉
-        fx: phase !== "希望" && (Store.meta.settings || {}).choiceFx !== false ? this.previewEffects(o) : [],
+        fx: phase !== "希望" && (Store.meta.settings || {}).choiceFx === true ? this.previewEffects(o) : [],
         opt: o,
       }));
       if (items.length && items.every((i) => i.disabled)) items.forEach((i) => (i.disabled = false));
