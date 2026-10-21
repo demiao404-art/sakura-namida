@@ -286,11 +286,11 @@
       if (Store.meta.perfect) {
         mode = await this.confirm({
           title: "回顧",
-          text: "櫻已經離開了輪迴。\n要回顧哪一段時間呢？\n\n" +
+          text: "櫻已經打破了終焉的枷鎖。\n要回顧哪一段時間呢？\n\n" +
             "絕望輪迴：重新體驗一般線的三十天。\n" +
-            "打破枷鎖：重播希望線，從頭走到那個春天。\n\n" +
+            "希望將來：重播希望線，從頭走到那個春天。\n\n" +
             "回顧的時候，可以聽見櫻的心聲。",
-          buttons: [{ label: "取消", value: false }, { label: "絕望輪迴", value: "一般" }, { label: "打破枷鎖", value: "希望", kind: "primary" }],
+          buttons: [{ label: "取消", value: false }, { label: "絕望輪迴", value: "一般" }, { label: "希望將來", value: "希望", kind: "primary" }],
         });
         if (!mode) return;
       }

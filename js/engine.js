@@ -234,7 +234,7 @@
       };
     }
 
-    // mode：櫻咲之後的「回顧」— "一般"（絕望輪迴：重新體驗一般線）或 "希望"（打破枷鎖：重播希望線）
+    // mode：櫻咲之後的「回顧」— "一般"（絕望輪迴：重新體驗一般線）或 "希望"（希望將來：重播希望線）
     async newGame(mode) {
       this.stop();
       const replay = !!(mode && Store.meta.perfect);
@@ -246,7 +246,7 @@
       // 櫻咲之後的「絕望輪迴」：櫻已經脫離輪迴，這是回顧那段時間
       if (phase === "一般" && Store.meta.perfect) {
         const cap = this.config.回顧開場字幕;
-        if (Array.isArray(cap) && cap.length) await this.ui.captions(cap, { blackFirst: 1000 });
+        if (Array.isArray(cap) && cap.length && this.ui.captions) await this.ui.captions(cap, { blackFirst: 1000 });
       }
       if (phase === "希望") {
         await this.hopeIntro();
@@ -571,7 +571,7 @@
         (!o.cond || this.evalCond(o.cond)));
       const items = visible.map((o) => ({
         text: this.interpolate(o.text),
-        // 「打破枷鎖」（希望線的重播）：錯誤的選項全部變灰，那些路已經走過了
+        // 「希望將來」（希望線的重播）：錯誤的選項全部變灰，那些路已經走過了
         disabled: phase === "希望" && (greyed.has(o.oid) || (!!st.replay && !!o.wrong)),
         // 希望輪：錯誤的選項帶一點點雜訊（櫻記得，那條路走下去會發生什麼）
         glitch: phase === "希望" && !!o.wrong,
