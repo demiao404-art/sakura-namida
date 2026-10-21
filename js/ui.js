@@ -82,11 +82,15 @@
 
     // ---------- 右上角的「生存可能」 ----------
     // 一般輪：？？？？：0%　→ 集滿所有結局時，用雜訊特效變成「生存可能：0%」
-    // 絕望輪、希望輪：生存可能：0%　→ 走到完美結局時，變成「生存可能：？%」
+    // 絕望輪：生存可能：0%
+    // 希望輪：開場之後 5%，每做對一個關鍵選擇就往上加（劇本裡的 [生存可能 N]），隔年春天的結局是 100%
+    // 完美結局之後的重玩：生存可能：？%
     survivalText(phase) {
       const m = Store.meta;
+      const st = window.__engine && window.__engine.state;
+      if (phase === "希望") return ["生存可能", String((st && st.survival) || 0)];
       if (m.perfect) return ["生存可能", "？"];
-      if (phase === "絕望" || phase === "希望") return ["生存可能", "0"];
+      if (phase === "絕望") return ["生存可能", "0"];
       const need = window.__engine ? window.__engine.endingsNeeded : 99;
       return (m.endings || []).length >= need ? ["生存可能", "0"] : ["？？？？", "0"];
     },
@@ -98,11 +102,30 @@
     updateSurvival(phase) {
       if (phase) this._svPhase = phase;
       const box = $("survival"); if (!box) return;
-      if (!box.classList.contains("reveal")) {
+      if (!box.classList.contains("reveal") && !box.classList.contains("counting")) {
         const [l, v] = this.survivalText(this._svPhase);
         this.setSurvival(l, v);
       }
       box.hidden = !(this.playing || box.classList.contains("reveal"));
+    },
+    // 希望輪裡數字往上加：一格一格數上去，發一下光
+    async survivalCount(from, to) {
+      const box = $("survival"); if (!box) return;
+      const token = (this._svCount = (this._svCount || 0) + 1);
+      box.classList.remove("counting");
+      if (this.skipping || to <= from) { this.updateSurvival(); return; }
+      box.classList.remove("rise"); void box.offsetWidth; box.classList.add("rise");
+      const steps = to - from;
+      box.classList.add("counting");
+      for (let v = from + 1; v <= to; v++) {
+        if (token !== this._svCount) break;
+        box.querySelector(".sv-val").textContent = String(v);
+        await sleep(Math.min(90, 1400 / steps));
+      }
+      if (token !== this._svCount) return;
+      box.classList.remove("counting");
+      this.updateSurvival();
+      setTimeout(() => { if (token === this._svCount) box.classList.remove("rise"); }, 1800);
     },
     // 雜訊特效：從 from 變成 to（例如 ["？？？？","0"] → ["生存可能","0"]）
     async survivalReveal(from, to) {

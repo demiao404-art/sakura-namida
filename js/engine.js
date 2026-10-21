@@ -224,7 +224,13 @@
       this.state = this.freshState(phase);
       this.ui.resetScene();
       this.ui.backlog.length = 0;
-      if (phase === "希望") await this.hopeIntro();
+      if (phase === "希望") {
+        await this.hopeIntro();
+        // 主角說完「我要用對櫻的思念改變一切。」之後：生存可能 0% → 5%
+        this.state.survival = 5;
+        this.ui.updateSurvival(phase);
+        if (this.ui.survivalCount) this.ui.survivalCount(0, 5);
+      }
       this.run();
     }
 
@@ -248,7 +254,11 @@
       // 劇本修改過時，盡量回到原本的位置
       if (this.state.pc >= this.cmds.length) this.state.pc = 0;
       this.ui.backlog.length = 0;
-      if (retry) { this.ui.resetScene(); await this.hopeIntro(); }
+      if (retry) {
+        this.ui.resetScene();
+        await this.hopeIntro();
+        if (!this.state.survival) this.state.survival = 5;
+      }
       this.ui.restoreScene(this.state);
       this.audio.bgm(this.state.bgm);
       this.run();
@@ -496,6 +506,15 @@
           this.audio.bgm(st.bgm);
           return;
 
+        case "survival":
+          // 只有希望輪會用到（改寫之後的重玩也會經過「完美結局_之後」，那時候不動）
+          if (st.phase === "希望" && st.survival !== c.v) {
+            const from = st.survival || 0;
+            st.survival = c.v;
+            if (this.ui.survivalCount) this.ui.survivalCount(from, c.v);
+          }
+          return;
+
         case "se":
           // 快轉的時候不播音效，避免一連串的鐘聲疊在一起
           if (!(ui.skipping)) this.audio.se(c.name);
@@ -596,7 +615,6 @@
         await this.ui.endingSequence("perfect");
         // 第一次走到完美結局時才演出「生存可能」的轉換和作者的字幕；改寫之後的重玩就不再重複
         if (first) {
-          if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "0"], ["生存可能", "？"]);
           const pc = this.config.完美結局字幕;
           if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
           if (this.ui.credits) await this.ui.credits(this.config.工作人員名單);

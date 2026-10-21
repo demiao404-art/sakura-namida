@@ -300,6 +300,12 @@
         return { t: "bgm", name: rest[0] || "停", at };
       case "音效":
         return { t: "se", name: rest[0], at };
+      case "生存可能": {
+        // [生存可能 15]：希望輪裡，右上角的「生存可能」一點一點往上加
+        const v = parseInt(rest[0], 10);
+        if (isNaN(v)) err(ln, "[生存可能] 後面要接一個數字，例如 [生存可能 15]");
+        return { t: "survival", v: Math.max(0, Math.min(100, v || 0)), at };
+      }
       case "對話框":
         return { t: "box", show: !/隱藏|關/.test(rest[0] || ""), at };
       case "回到標題":
