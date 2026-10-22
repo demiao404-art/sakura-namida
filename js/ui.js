@@ -135,6 +135,8 @@
       box.classList.add("reveal");
       box.hidden = false;
       this.setSurvival(from[0], from[1]);
+      // 只有 from：放大顯示一下就好，不轉換
+      if (!to) { await sleep(3200); box.classList.remove("reveal"); box.hidden = !this.playing; return; }
       await sleep(1600);
       box.classList.add("glitching");
       const t0 = performance.now();

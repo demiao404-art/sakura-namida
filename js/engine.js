@@ -654,8 +654,8 @@
         await this.ui.endingSequence("perfect");
         // 第一次走到完美結局時才演出「生存可能」的轉換和作者的字幕；改寫之後的重玩就不再重複
         if (first) {
-          // 櫻的生存可能是 100%；螢幕前的你，是「？」。接著就是作者寫給你的字幕
-          if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "100"], ["生存可能", "？"]);
+          // 櫻的生存可能：100%（放大停留一下，不再變成「？」）。接著就是作者寫給你的字幕
+          if (this.ui.survivalReveal) await this.ui.survivalReveal(["生存可能", "100"]);
           const pc = this.config.完美結局字幕;
           if (Array.isArray(pc)) await this.ui.captions(pc, { style: "perfect" });
           if (this.ui.credits) await this.ui.credits(this.config.工作人員名單);
