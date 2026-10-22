@@ -929,6 +929,18 @@
         c.append(el("div", "gc-no", opts.no || ""));
         c.append(el("div", "gc-name", opts.name));
         c.append(el("div", "gc-text", opts.text || ""));
+        // 更多提示：卡關的玩家可以展開（要提高哪些感情、哪幾天會發生）
+        if (opts.more) {
+          const more = el("div", "gc-more", opts.more);
+          more.hidden = true;
+          const mb = el("button", "gc-more-btn", "更多提示 ▾");
+          mb.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            more.hidden = !more.hidden;
+            mb.textContent = more.hidden ? "更多提示 ▾" : "收起提示 ▴";
+          });
+          c.append(mb, more);
+        }
         if (opts.onPlay) {
           c.append(el("div", "gc-play", "▶ 點一下回顧"));
           c.tabIndex = 0;
@@ -949,6 +961,7 @@
           text: has ? e.簡介 : chained ? e.鎖鏈 : "提示：" + e.提示,
           locked: !has,
           chained,
+          more: !has && !chained ? e.詳細提示 : null,
           isNew: has ? this.isNewInGallery("e" + e.id) : (!!e.鎖鏈 && !chained && this.isNewInGallery("unchain" + e.id)),
           onPlay: has ? () => this.replayEnding(String(e.id)) : null,
         });

@@ -1301,3 +1301,9 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 /* [大字]：放大的一句台詞 */
 .tb-text.big { font-size: 46px; letter-spacing: 0.12em; line-height: 1.5; }
 
+
+/* 結局圖鑑：更多提示（卡關的時候可以展開） */
+.gc-more-btn { margin-top: 10px; font-size: 16px; letter-spacing: 0.12em; color: var(--sakura); opacity: 0.8; padding: 2px 0; }
+.gc-more-btn:hover, .gc-more-btn:focus-visible { opacity: 1; }
+.gc-more { margin-top: 8px; padding: 10px 14px; font-size: 17px; line-height: 1.75; white-space: pre-line; color: #efe4ea; background: rgba(244, 188, 203, 0.07); border-left: 2px solid var(--sakura); border-radius: 4px; }
+.gallery-grid { align-items: start; }
