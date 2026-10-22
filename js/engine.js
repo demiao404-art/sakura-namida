@@ -114,7 +114,7 @@
 
     // ---------------- 感情值 ----------------
     get emo() { return (this.config.感情值 || {}); }
-    // 選項旁邊要顯示的感情變化（不會真的改變數值）：只算看得到的感情值，壓力等隱藏數值不顯示
+    // 選項旁邊要顯示的感情變化（不會真的改變數值）：只算看得到的感情值（壓力也會顯示；項目加上「不顯示: true」的不算）
     previewEffects(opt) {
       const items = this.emo.項目 || {};
       const cap = opt.big ? Infinity : (this.emo.單次上限 || Infinity);
