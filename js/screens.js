@@ -910,8 +910,13 @@
       head.append(el("p", "gallery-count", `花瓣　${Math.min(got.size, need)} ／ ${need}`));
       const cr = el("button", "btn small", "工作人員名單");
       cr.addEventListener("click", async (e) => { e.stopPropagation(); await UI.credits(this.cfg.工作人員名單); });
+      // 感情值（左上角）：預設關閉，想對照提示的玩家可以直接在這裡打開
+      const st = el("button", "btn small", "");
+      const stLabel = () => { st.textContent = "感情值：" + (m.settings.showStats ? "顯示" : "隱藏"); };
+      stLabel();
+      st.addEventListener("click", (e) => { e.stopPropagation(); m.settings.showStats = !m.settings.showStats; Store.save("settings"); stLabel(); UI.renderStats && UI.renderStats(); });
       const btns = el("div", "row-btns");
-      btns.append(cr);
+      btns.append(st, cr);
       head.append(btns);
       body.append(head);
       const grid = el("div", "gallery-grid");

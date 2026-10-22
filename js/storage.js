@@ -15,7 +15,7 @@
     autoDelay: 50,      // 0–100
     bgmVolume: 70,
     seVolume: 80,
-    showStats: true,     // 左上角顯示感情值
+    showStats: false,    // 左上角顯示感情值（預設關閉，可以在「設定」或「結局」裡打開）
     skipMode: "read",   // read | all
     boxOpacity: 78,
     ambientPetals: true,
@@ -57,6 +57,8 @@
     try { if (m) meta = Object.assign(defaultMeta(), JSON.parse(m)); } catch (e) { console.warn("meta 讀取失敗", e); }
     try { if (s) slots = JSON.parse(s) || {}; } catch (e) { console.warn("slots 讀取失敗", e); }
     meta.settings = Object.assign({ ...DEFAULT_SETTINGS }, meta.settings || {});
+    // 感情值改成預設關閉（舊存檔裡的「顯示」是以前的預設值，關掉一次；之後玩家自己打開的就照玩家的）
+    if (!meta.settings.statsDefaultOff) { meta.settings.showStats = false; meta.settings.statsDefaultOff = true; }
     readSet = new Set(meta.read || []);
     storageOk = safeSet("sakura-vn.probe", "1");
   }
@@ -141,6 +143,8 @@
     } : mergePackages(getPackage(), pkg);
     meta = merged.meta;
     meta.settings = Object.assign({ ...DEFAULT_SETTINGS }, meta.settings || {});
+    // 感情值改成預設關閉（舊存檔裡的「顯示」是以前的預設值，關掉一次；之後玩家自己打開的就照玩家的）
+    if (!meta.settings.statsDefaultOff) { meta.settings.showStats = false; meta.settings.statsDefaultOff = true; }
     slots = merged.slots || {};
     readSet = new Set(meta.read || []);
     persist("import");
