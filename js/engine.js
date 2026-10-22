@@ -320,11 +320,15 @@
     autosave() { if (this.state && this.state.preview) return; Store.setSlot("auto", this.makeSlot()); }
 
     // 開發者工具：預覽結局（不會記錄花瓣、輪迴次數，也不會覆蓋自動存檔）
-    previewEnding(label, day, vars) {
+    // 結局圖鑑的「回顧」也走這裡（opts.gallery）：演完之後回到結局圖鑑
+    previewEnding(label, day, vars, opts) {
       if (this.labels[label] === undefined) return false;
       this.stop();
-      const st = this.freshState(/^(希望|完美)/.test(label) ? "希望" : /^絕望/.test(label) ? "絕望" : "一般");
+      const st = this.freshState((opts && opts.phase) || (/^(希望|完美)/.test(label) ? "希望" : /^絕望/.test(label) ? "絕望" : "一般"));
       st.preview = true;
+      if (opts && opts.gallery) st.galleryReplay = true;
+      // 希望線的回顧：錯誤的選項全部變灰（那些路已經走過了），生存可能從 0 開始
+      if (opts && opts.replay) { st.replay = true; st.survival = 0; }
       st.day = day || 1;
       st.seg = 2;
       Object.assign(st.vars, vars || {});
@@ -603,6 +607,8 @@
       this.applyEffects(o.effects, o.big);
       st.choices.push({ oid: o.oid, day: st.day, wrong: !!o.wrong });
       if (o.target) { st.pc = this.labels[o.target]; st.moved = true; }
+      // 絕望線、希望線：選完之後馬上再存一次，回到標題再「繼續」也不能重選
+      if ((phase === "絕望" || phase === "希望") && !st.replay && !Store.meta.perfect) this.autosave();
     }
 
     // 自動選擇的分數：讓她安心、信任、喜歡的選項優先；拉開距離、說謊、追問、增加壓力的選項最後
@@ -629,6 +635,11 @@
       const phase = st.phase;
       if (st.preview) {
         await this.ui.endingSequence(endId === "完美" ? "perfect" : endId === "絕望" ? "despair" : "death", { isNew: false });
+        // 從結局圖鑑回顧：一樣要看到重要聲明，然後回到結局圖鑑
+        if (st.galleryReplay) {
+          if (endId !== "完美") await this.deathNotice();
+          return this.exitToTitle({ from: "gallery" });
+        }
         return this.exitToTitle({ from: "preview" });
       }
       m.loops = (m.loops || 0) + 1;
@@ -650,7 +661,7 @@
           if (this.ui.credits) await this.ui.credits(this.config.工作人員名單);
           // 謝幕之後：命運和主角的最後一段對話（溫暖的背景）
           const after = this.config.謝幕後對話;
-          if (Array.isArray(after) && after.length) await this.ui.captions(after, { style: "warm" });
+          if (Array.isArray(after) && after.length) await this.ui.captions(after, { style: "warm", fast: true });
         }
         return this.exitToTitle({ from: "perfect", first });
       }
@@ -663,8 +674,11 @@
         Store.save("ending");
         await this.ui.endingSequence("despair");
         await this.deathNotice();
-        const cap = this.config.進入希望輪字幕;
-        await this.ui.captions(Array.isArray(cap) ? cap : cap && cap.文字 ? [cap] : []);
+        // 櫻咲之後讀舊的絕望輪存檔走到這裡：命運已經被說服了，不再播命運的字幕
+        if (!m.perfect) {
+          const cap = this.config.進入希望輪字幕;
+          await this.ui.captions(Array.isArray(cap) ? cap : cap && cap.文字 ? [cap] : []);
+        }
         return this.exitToTitle({ from: "despair" });
       }
 

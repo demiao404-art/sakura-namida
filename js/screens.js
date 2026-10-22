@@ -278,6 +278,28 @@
         Store.save("notice");
         setTimeout(() => UI.toast("從現在起，在重新走過的日子裡，點一下名字旁的愛心，就能聽見櫻的心聲。", 7000), 2200);
       }
+      // 從結局圖鑑回顧完一段結局：回到結局圖鑑
+      if (opts && opts.from === "gallery") this.open("gallery");
+    },
+
+    // 結局圖鑑：點一下拿到的結局，回顧那段結局的劇情（不會記錄花瓣、輪迴次數，也不會動到存檔）
+    // 有「_前」引子的結局（2、4、7）從引子開始，其他從結局的第一個場景開始
+    //   絕望線：絕望輪最後的那個夢（「又一次？」）
+    //   希望線：希望輪第 30 天，櫻花樹下（錯誤的選項會變灰）一直到完美結局
+    //   完美結局：那天之後的日子
+    replayEnding(id) {
+      const special = {
+        despair: { label: "絕望_第30天", phase: "絕望" },
+        hope: { label: "回顧_希望線", phase: "希望", replay: true },
+        perfect: { label: "完美結局", phase: "希望" },
+      }[id];
+      const label = special ? special.label : ({ "2": "結局2_前", "4": "結局4_前", "7": "結局7_前" }[id] || "結局" + id);
+      const eng = this.engine;
+      if (eng.labels[label] === undefined) { UI.toast("找不到這段結局的劇情"); return; }
+      this.closeAll();
+      this.showBase(null); Title.stop(); UI.setPlaying(true);
+      const day = special || /^[89]$/.test(id) ? 30 : 20;
+      eng.previewEnding(label, day, {}, Object.assign({ gallery: true }, special || {}));
     },
 
     async startFlow() {
@@ -391,7 +413,16 @@
       Store.setSlot("quick", this.engine.makeSlot());
       UI.toast("已快速存檔");
     },
+    // 絕望線、希望線開始之後、還沒結束（還沒走到完美結局）：不能讀取存檔，避免重來關鍵的選擇
+    //   「繼續」（從標題畫面接著自動存檔）不受影響；遊戲進行中也不能讀自動存檔
+    loadLocked() {
+      const p = this.engine.currentPhase();
+      return !Store.meta.perfect && (p === "絕望" || p === "希望");
+    },
+    loadLockedText: "絕望線、希望線進行中，不能讀取存檔。\n每天開始和遇到選項時會自動存檔，可以從標題畫面的「繼續」接著玩。",
+
     async quickLoad() {
+      if (this.loadLocked()) { UI.toast("絕望線、希望線進行中，不能讀取存檔", 3000); return; }
       const s = Store.getSlot("quick");
       if (!s) { UI.toast("還沒有快速存檔"); return; }
       const ok = await this.confirm({ title: "快速讀取", text: "要讀取快速存檔嗎？\n目前沒有存檔的進度會消失。", buttons: [{ label: "取消", value: false }, { label: "讀取", value: true, kind: "primary" }] });
@@ -426,6 +457,7 @@
       if (this.saveTab === "auto") ids = ["auto"];
       else if (this.saveTab === "quick") ids = ["quick"];
       else { const p = Number(this.saveTab.slice(1)); ids = []; for (let i = (p - 1) * 6 + 1; i <= p * 6; i++) ids.push(String(i)); }
+      if (mode === "load" && this.loadLocked()) content.append(el("p", "note err", this.loadLockedText));
       ids.forEach((id) => grid.append(this.slotCard(id, mode)));
       content.append(grid);
       if (this.saveTab === "auto") content.append(el("p", "note", "每天開始和遇到選項時，會自動存在這裡。走到結局後，自動存檔會清空，下一次從頭開始。"));
@@ -464,7 +496,9 @@
       b.prepend(thumb);
       b.append(info);
       const canSave = mode === "save" && this.engine.state && UI.playing && id !== "auto";
-      b.disabled = mode === "save" ? !canSave : !data;
+      // 絕望線、希望線進行中：只能從標題畫面讀自動存檔（等於「繼續」），其他存檔都不能讀
+      const blocked = mode === "load" && this.loadLocked() && (id !== "auto" || UI.playing);
+      b.disabled = mode === "save" ? !canSave : (!data || blocked);
       b.addEventListener("click", async () => {
         if (mode === "save") {
           if (data) {
@@ -474,7 +508,7 @@
           Store.setSlot(id, this.engine.makeSlot());
           UI.toast("已存檔");
           this.renderSaves(mode);
-        } else if (data) {
+        } else if (data && !blocked) {
           if (UI.playing) {
             const ok = await this.confirm({ title: "讀取存檔", text: `要讀取 ${label} 嗎？\n目前沒有存檔的進度會消失。`, buttons: [{ label: "取消", value: false }, { label: "讀取", value: true, kind: "primary" }] });
             if (!ok) return;
@@ -509,17 +543,34 @@
           navigator.clipboard.writeText(out.value).then(() => { n1.className = "note ok"; n1.textContent = "已複製到剪貼簿。"; }, fallback);
         } else fallback();
       });
-      dl.addEventListener("click", () => {
+      // 下載：在 claude.ai 上要透過平台的下載功能（會先跳出確認視窗）；
+      // 其他地方（GitHub Pages 等一般網頁）沒有這個功能，就用一般的下載連結
+      let dlApi;
+      const getDl = () => (dlApi ??= (window.claude && window.claude.use) ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null));
+      const plainDownload = (filename) => {
         try {
           const blob = new Blob([out.value], { type: "text/plain" });
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
-          const d = new Date();
-          a.download = `櫻-存檔-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.txt`;
+          a.download = filename;
           document.body.append(a); a.click(); a.remove();
           setTimeout(() => URL.revokeObjectURL(a.href), 2000);
           n1.className = "note"; n1.textContent = "如果沒有開始下載，請改用「複製」。";
         } catch (e) { n1.className = "note err"; n1.textContent = "這裡無法下載，請改用「複製」。"; }
+      };
+      dl.addEventListener("click", async () => {
+        const d = new Date();
+        const filename = `櫻-存檔-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.txt`;
+        const api = await getDl();
+        if (!api) return plainDownload(filename);
+        try {
+          await api.save({ filename, data: out.value });
+          n1.className = "note ok"; n1.textContent = "存檔碼已下載。";
+        } catch (e) {
+          const code = e && e.code;
+          n1.className = "note" + (code === "declined" ? "" : " err");
+          n1.textContent = code === "declined" ? "已取消下載。" : code === "rate_limited" ? "請稍等一下再試一次。" : "這裡無法下載，請改用「複製」。";
+        }
       });
       r1.append(gen, copy, dl);
       exp.append(out, r1, n1);
@@ -545,10 +596,15 @@
         let pkg;
         try { pkg = await Store.decodeCode(inp.value); }
         catch (e) { n2.className = "note err"; n2.textContent = e.message; return; }
+        const locked = this.loadLocked();
         const mode = await this.confirm({
           title: "匯入存檔",
-          text: "要怎麼處理目前的進度？\n合併：兩邊的結局、花瓣、存檔都保留（建議）。\n取代：完全改成存檔碼裡的內容。",
-          buttons: [{ label: "取消", value: null }, { label: "取代", value: "replace", kind: "danger" }, { label: "合併", value: "merge", kind: "primary" }],
+          text: locked
+            ? "要和目前的進度合併嗎？\n兩邊的結局、花瓣、存檔都會保留。\n（絕望線、希望線進行中，不能用「取代」）"
+            : "要怎麼處理目前的進度？\n合併：兩邊的結局、花瓣、存檔都保留（建議）。\n取代：完全改成存檔碼裡的內容。",
+          buttons: locked
+            ? [{ label: "取消", value: null }, { label: "合併", value: "merge", kind: "primary" }]
+            : [{ label: "取消", value: null }, { label: "取代", value: "replace", kind: "danger" }, { label: "合併", value: "merge", kind: "primary" }],
         });
         if (!mode) return;
         Store.applyPackage(pkg, mode);
@@ -808,10 +864,24 @@
     galleryKeys() {
       const m = Store.meta;
       const keys = (m.endings || []).map((id) => "e" + id);
+      // 被鎖鏈纏住的結局（No.10）：鎖鏈鬆開的那一刻，也算是圖鑑裡的新東西（紅點）
+      const list = (this.cfg.結局圖鑑 || {}).結局 || [];
+      for (const e of list) {
+        if (!e.鎖鏈 || (m.endings || []).includes(String(e.id))) continue;
+        const others = list.filter((x) => String(x.id) !== String(e.id) && (m.endings || []).includes(String(x.id))).length;
+        if (others >= list.length - 1) keys.push("unchain" + e.id);
+      }
+      // 絕望輪失敗過（走到最溫柔的道別以外的結局）：絕望線的卡片出現提示，也算新東西
+      if (this.despairFailed()) keys.push("despairHint");
       if ((m.endings || []).length >= this.engine.endingsNeeded || m.despairDone) keys.push("despair");
       if (m.despairDone) keys.push("despairDone");
       if (m.perfect) keys.push("hope", "perfect");
       return keys;
+    },
+    // 絕望輪裡，走到了「最溫柔的道別」（結局 8 →「又一次？」）以外的結局，至少一次
+    despairFailed() {
+      const m = Store.meta;
+      return !m.despairDone && (m.endingLog || []).some((e) => e.phase === "絕望" && e.id !== "絕望");
     },
     isNewInGallery(key) { return !(Store.meta.gallerySeenKeys || []).includes(key); },
     updateGalleryDot() {
@@ -846,31 +916,66 @@
       body.append(head);
       const grid = el("div", "gallery-grid");
       const card = (opts) => {
-        const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.special ? " special " + opts.special : "") + (opts.isNew ? " is-new" : ""));
+        const c = el("div", "gallery-card" + (opts.locked ? " locked" : "") + (opts.chained ? " chained" : "") + (opts.special ? " special " + opts.special : "") + (opts.isNew ? " is-new" : "") + (opts.onPlay ? " replayable" : ""));
+        if (opts.chained) {
+          // 兩條交叉的鎖鏈，加上中間的鎖頭
+          const ch = document.createElement("div");
+          ch.className = "gc-chain";
+          ch.setAttribute("aria-hidden", "true");
+          ch.innerHTML = '<svg viewBox="0 0 400 100" preserveAspectRatio="none"><g class="lnk"><line x1="-10" y1="8" x2="410" y2="92"/><line x1="-10" y1="92" x2="410" y2="8"/></g><g class="lnk2"><line x1="-10" y1="8" x2="410" y2="92"/><line x1="-10" y1="92" x2="410" y2="8"/></g></svg>'
+            + '<svg class="lock" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke-width="2.2"/><rect x="4.5" y="10" width="15" height="11" rx="2.2"/><circle cx="12" cy="15.2" r="1.6" class="kh"/></svg>';
+          c.append(ch);
+        }
         c.append(el("div", "gc-no", opts.no || ""));
         c.append(el("div", "gc-name", opts.name));
         c.append(el("div", "gc-text", opts.text || ""));
+        if (opts.onPlay) {
+          c.append(el("div", "gc-play", "▶ 點一下回顧"));
+          c.tabIndex = 0;
+          c.setAttribute("role", "button");
+          c.addEventListener("click", opts.onPlay);
+          c.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); opts.onPlay(); } });
+        }
         grid.append(c);
       };
       list.forEach((e, i) => {
         const has = got.has(String(e.id));
+        // 有「鎖鏈」的結局（No.10）：其他結局還沒集滿之前，被鎖鏈纏住
+        const others = list.filter((x) => String(x.id) !== String(e.id) && got.has(String(x.id))).length;
+        const chained = !has && !!e.鎖鏈 && others < list.length - 1;
         card({
           no: "No." + pad(i + 1),
           name: has ? e.名稱 : "？？？",
-          text: has ? e.簡介 : "提示：" + e.提示,
+          text: has ? e.簡介 : chained ? e.鎖鏈 : "提示：" + e.提示,
           locked: !has,
-          isNew: has && this.isNewInGallery("e" + e.id),
+          chained,
+          isNew: has ? this.isNewInGallery("e" + e.id) : (!!e.鎖鏈 && !chained && this.isNewInGallery("unchain" + e.id)),
+          onPlay: has ? () => this.replayEnding(String(e.id)) : null,
         });
       });
       const all = got.size >= need;
       if (all || m.despairDone || m.perfect) {
         const sp = el("div", "gallery-grid special-grid");
         const D = G.絕望線 || {}, H = G.希望線 || {}, P = G.完美結局 || {};
-        const add = (o) => { const c = el("div", "gallery-card special " + o.cls + (o.isNew ? " is-new" : "")); c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text)); sp.append(c); };
-        add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : (D.出現 || ""), isNew: this.isNewInGallery(m.despairDone ? "despairDone" : "despair") });
+        const add = (o) => {
+          const c = el("div", "gallery-card special " + o.cls + (o.isNew ? " is-new" : "") + (o.play ? " replayable" : ""));
+          c.append(el("div", "gc-no", o.no), el("div", "gc-name", o.name), el("div", "gc-text", o.text));
+          if (o.play) {
+            const go = () => this.replayEnding(o.play);
+            c.append(el("div", "gc-play", "▶ 點一下回顧"));
+            c.tabIndex = 0;
+            c.setAttribute("role", "button");
+            c.addEventListener("click", go);
+            c.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } });
+          }
+          sp.append(c);
+        };
+        // 絕望線：走過之後才能回顧
+        const dHint = !m.despairDone && this.despairFailed() && D.提示;
+        add({ cls: "despair", no: "？", name: D.名稱 || "絕望線", text: m.despairDone ? (D.走過 || "") : dHint ? (D.出現 || "") + "\n" + D.提示 : (D.出現 || ""), isNew: this.isNewInGallery(m.despairDone ? "despairDone" : dHint ? "despairHint" : "despair"), play: m.despairDone ? "despair" : null });
         // 希望線：走完之前完全不提示，走到完美結局之後才出現
-        if (m.perfect) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: H.走過 || "", isNew: this.isNewInGallery("hope") });
-        if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "", isNew: this.isNewInGallery("perfect") });
+        if (m.perfect) add({ cls: "hope", no: "？", name: H.名稱 || "希望線", text: H.走過 || "", isNew: this.isNewInGallery("hope"), play: "hope" });
+        if (m.perfect) add({ cls: "perfect", no: "✿", name: P.名稱 || "完美結局", text: P.簡介 || "", isNew: this.isNewInGallery("perfect"), play: "perfect" });
         body.append(sp);   // 絕望線、希望線放在最上面，集滿的時候一眼就看得到
       }
       body.append(grid);

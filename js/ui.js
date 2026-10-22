@@ -845,6 +845,79 @@
           await sleep(600);
           return;
         }
+        case "雜訊": {
+          // [效果 雜訊]：畫面一瞬間閃過雜訊、畫面錯位（輪迴的記憶閃過，然後被抹掉）
+          // 快轉的時候也會閃一下（短版），不然快轉看過的段落時，會以為這裡沒有雜訊
+          const nz = document.createElement("canvas"); nz.className = "fx-noise"; nz.width = 320; nz.height = 180;
+          // 蓋住整個遊戲畫面（連對話框、選項也一起），記憶像是被硬生生切斷
+          nz.classList.add("full");
+          this.stage.append(nz);
+          const nctx = nz.getContext("2d");
+          const img = nctx.createImageData(320, 180);
+          let on = true;
+          const draw = () => {
+            if (!on) return;
+            const d = img.data;
+            for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+            nctx.putImageData(img, 0, 0);
+            requestAnimationFrame(draw);
+          };
+          draw();
+          this.stage.classList.remove("noise-jolt"); void this.stage.offsetWidth; this.stage.classList.add("noise-jolt");
+          const seq = fast ? [[0.85, 90], [0.3, 50], [0.7, 80], [0, 30]] : [[0.85, 110], [0.15, 70], [0.7, 140], [0.25, 60], [0.55, 120], [0, 160]];
+          for (const [op, ms] of seq) { nz.style.opacity = op; await sleep(ms); }
+          on = false; nz.remove();
+          this.stage.classList.remove("noise-jolt");
+          return;
+        }
+        case "笑容閃回": {
+          // [效果 笑容閃回 背景名 …]：一般輪裡櫻離開前的笑容，一個接一個閃過（帶雜訊），最後變成哭的模樣
+          if (fast) return;
+          const bgs = (args || []).filter(Boolean);
+          const imgs = (this.cfg.角色["櫻"] || {}).立繪 || {};
+          if (!bgs.length || !imgs["微笑"]) return;
+          this.textbox.classList.add("hidden");
+          const box = document.createElement("div"); box.className = "smilefx";
+          const scene = document.createElement("div"); scene.className = "sf-scene";
+          const ch = document.createElement("div"); ch.className = "char on"; ch.dataset.pos = "center";
+          const im = document.createElement("img"); im.alt = "櫻"; im.draggable = false; im.src = imgs["微笑"];
+          ch.append(im);
+          const nz = document.createElement("canvas"); nz.className = "fx-noise"; nz.width = 320; nz.height = 180;
+          box.append(scene, ch, nz);
+          this.fxLayer.append(box);
+          const nctx = nz.getContext("2d"); const nimg = nctx.createImageData(320, 180);
+          let on = true;
+          const draw = () => {
+            if (!on) return;
+            const d = nimg.data;
+            for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+            nctx.putImageData(nimg, 0, 0);
+            requestAnimationFrame(draw);
+          };
+          draw();
+          const setBg = (name) => {
+            const v = this.bgValue(name);
+            if (!v) return;
+            if (String(v).startsWith("#")) { scene.style.backgroundImage = ""; scene.style.backgroundColor = v; }
+            else { scene.style.backgroundColor = "#000"; scene.style.backgroundImage = `url("${v}")`; }
+          };
+          const jolt = () => { box.classList.remove("jolt"); void box.offsetWidth; box.classList.add("jolt"); };
+          let step = 0;
+          for (const bg of bgs) {
+            setBg(bg); im.src = imgs["微笑"]; jolt();
+            nz.style.opacity = 0.75; await sleep(70);
+            nz.style.opacity = 0.18; await sleep(Math.max(260, 620 - step * 70));
+            nz.style.opacity = 0.6; await sleep(60);
+            step++;
+          }
+          // 最後：雜訊一陣，笑容變成哭的模樣
+          nz.style.opacity = 0.9; jolt(); await sleep(160);
+          if (imgs["哭泣"]) im.src = imgs["哭泣"];
+          nz.style.opacity = 0.1; await sleep(1300);
+          nz.style.opacity = 0.8; jolt(); await sleep(140);
+          on = false; box.remove();
+          return;
+        }
         case "回憶": this.setMemory(true); return;
         case "回憶結束": this.setMemory(false); return;
         case "一片花瓣": {
@@ -868,7 +941,9 @@
     // ---------- 場景重設 ----------
     resetScene() {
       this.cancelAll();
-      this.fxLayer.querySelectorAll(".rewind, .loopfx, .flashback").forEach((e) => e.remove());
+      this.fxLayer.querySelectorAll(".rewind, .loopfx, .flashback, .fx-noise, .smilefx").forEach((e) => e.remove());
+      this.stage.querySelectorAll(":scope > .fx-noise").forEach((e) => e.remove());
+      this.stage.classList.remove("noise-jolt");
       this.stage.classList.remove("rewinding");
       this.setBgInstant(null);
       this.hideChar("*", true);
@@ -1029,6 +1104,10 @@
       const layer = $("ending-layer");
       const txt = $("ending-text");
       const warm = opts && opts.style === "warm";
+      // fast：謝幕後跟命運的對話，換頁比較快（字淡入、可以點下一頁、點了之後的間隔都縮短）
+      const fast = !!(opts && opts.fast);
+      const T = fast ? { show: 600, hint: 500, gap: 450 } : { show: 1400, hint: 1500, gap: 1000 };
+      txt.style.transitionDuration = fast ? "0.6s" : "";
       const perfect = (opts && opts.style === "perfect") || warm;
       layer.style.transition = "opacity 1.2s ease";
       layer.style.background = warm
@@ -1082,7 +1161,7 @@
         } else txt.textContent = pg;
         void txt.offsetWidth;
         txt.classList.add("on");
-        await sleep(1400);
+        await sleep(T.show);
         const last = i === pages.length - 1;
         if (last && button) {
           const b = document.createElement("button");
@@ -1099,7 +1178,7 @@
           hint.className = "caption-hint" + (perfect ? " dark" : "");
           hint.textContent = "▼";
           layer.append(hint);
-          setTimeout(() => hint.classList.add("on"), 1500);
+          setTimeout(() => hint.classList.add("on"), T.hint);
           await new Promise((r) => {
             const done = (e) => { if (e) e.stopPropagation(); layer.removeEventListener("click", done); window.removeEventListener("keydown", key); r(); };
             const key = (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); done(); } };
@@ -1109,13 +1188,14 @@
           hint.remove();
         }
         txt.classList.remove("on");
-        await sleep(1000);
+        await sleep(T.gap);
         clearInterval(this._capGlitch);
       }
       txt.classList.remove("caption", "caption-long", "caption-notice", "caption-voice", "caption-glitch", "caption-warm", "caption-gold");
       layer.classList.remove("gold-bg");
       txt.style.color = "";
       txt.style.textShadow = "";
+      txt.style.transitionDuration = "";
       layer.classList.remove("on");
       await sleep(900);
       layer.style.transition = "";

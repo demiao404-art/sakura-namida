@@ -186,7 +186,8 @@
     // [心聲] 掛到它前面最近的一句台詞或旁白上（點名字旁的愛心才會顯示）
     let lastLine = null;
     for (const c of cmds) {
-      if (c.t === "label" || c.t === "choice") { if (c.t === "choice") lastLine = null; continue; }
+      // 換段落（標籤）或選項之後，心聲不會再掛到前一段的台詞上（不同的路線走進來時，前一句不一樣）
+      if (c.t === "label" || c.t === "choice") { lastLine = null; continue; }
       if ((c.t === "say" || c.t === "narr") && !c.inner) { lastLine = c; continue; }
       if (c.inner && (c.t === "say" || c.t === "narr")) {
         if (lastLine) (lastLine.innerLines = lastLine.innerLines || []).push({ t: c.t, who: c.who, text: c.text, onlyIf: c.onlyIf || null, onlyPhase: c.onlyPhase || null });
