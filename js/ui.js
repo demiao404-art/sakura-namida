@@ -284,6 +284,8 @@
     },
     stopModes() { this.auto = false; this.skip = false; this.updateBadge(); },
     updateBadge() {
+      // 一開始快進（Skip 或按住 Ctrl），正在響的音效馬上切掉
+      if (this.skipping && window.AudioMgr && AudioMgr.stopSE) AudioMgr.stopSE();
       this.quick.querySelector('[data-act="auto"]').classList.toggle("active", this.auto);
       this.quick.querySelector('[data-act="skip"]').classList.toggle("active", this.skipping);
       const t = this.skipping ? "Skip" : this.auto ? "Auto" : "";
@@ -943,6 +945,7 @@
     // ---------- 場景重設 ----------
     resetScene() {
       this.cancelAll();
+      if (window.AudioMgr && AudioMgr.stopSE) AudioMgr.stopSE();
       this.fxLayer.querySelectorAll(".rewind, .loopfx, .flashback, .fx-noise, .smilefx").forEach((e) => e.remove());
       this.stage.querySelectorAll(":scope > .fx-noise").forEach((e) => e.remove());
       this.stage.classList.remove("noise-jolt");

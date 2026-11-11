@@ -52,6 +52,22 @@
     }
     loading.classList.add("done");
     setTimeout(() => loading.remove(), 700);
+
+    // 開頭的黑畫面：淡入 SARASARA，停一下再淡出；點擊或按鍵可以跳過
+    const splash = document.getElementById("splash");
+    if (splash) {
+      let gone = false;
+      const hide = (e) => {
+        if (e && e.type === "keydown") { e.preventDefault(); e.stopPropagation(); }
+        if (gone) return; gone = true;
+        splash.classList.add("done");
+        setTimeout(() => splash.remove(), 1000);
+        window.removeEventListener("keydown", hide, true);
+      };
+      splash.addEventListener("click", hide);
+      window.addEventListener("keydown", hide, true);
+      setTimeout(hide, 3600);
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

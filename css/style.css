@@ -956,6 +956,24 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 }
 #loading.done { opacity: 0; pointer-events: none; }
 
+/* 開頭的黑畫面：SARASARA（辰宇落雁體，SIL OFL 1.1，字形已轉成向量） */
+#splash {
+  position: fixed; inset: 0; z-index: 101;
+  display: grid; place-items: center;
+  background: #000; cursor: pointer;
+  transition: opacity 900ms ease;
+}
+#splash.done { opacity: 0; pointer-events: none; }
+#splash .splash-logo {
+  width: min(62vw, 720px); height: auto;
+  fill: #f4eeea; opacity: 0;
+  animation: splash-in 1600ms ease 300ms forwards;
+}
+@keyframes splash-in {
+  from { opacity: 0; filter: blur(4px); transform: translateY(6px); }
+  to   { opacity: 1; filter: blur(0); transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 80ms !important; }
 }
@@ -1100,6 +1118,9 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .cr-title .cr-name { font-size: 96px; letter-spacing: 0.2em; margin-bottom: 60px; }
 .cr-end { margin-top: 140px; }
 .cr-end .cr-name { font-size: 28px; opacity: 0.85; }
+.cr-sec { max-width: 1300px; padding: 0 40px; }
+.cr-name { white-space: pre-line; overflow-wrap: anywhere; }
+.cr-name + .cr-name { margin-top: 18px; }
 
 /* 作者的話 */
 .gallery-head .row-btns { display: flex; gap: 12px; }
@@ -1307,3 +1328,4 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius
 .gc-more-btn:hover, .gc-more-btn:focus-visible { opacity: 1; }
 .gc-more { margin-top: 8px; padding: 10px 14px; font-size: 17px; line-height: 1.75; white-space: pre-line; color: #efe4ea; background: rgba(244, 188, 203, 0.07); border-left: 2px solid var(--sakura); border-radius: 4px; }
 .gallery-grid { align-items: start; }
+

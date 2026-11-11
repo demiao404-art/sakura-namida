@@ -287,7 +287,7 @@
     //   絕望線：絕望輪最後的那個夢（「又一次？」）
     //   希望線：希望輪第 30 天，櫻花樹下（錯誤的選項會變灰）一直到完美結局
     //   完美結局：那天之後的日子
-    replayEnding(id) {
+    async replayEnding(id) {
       const special = {
         despair: { label: "絕望_第30天", phase: "絕望" },
         hope: { label: "回顧_希望線", phase: "希望", replay: true },
@@ -296,6 +296,16 @@
       const label = special ? special.label : ({ "2": "結局2_前", "4": "結局4_前", "7": "結局7_前" }[id] || "結局" + id);
       const eng = this.engine;
       if (eng.labels[label] === undefined) { UI.toast("找不到這段結局的劇情"); return; }
+      // 先確認要不要跳過去回顧（避免不小心點到）
+      const G = this.cfg.結局圖鑑 || {};
+      const entry = (G.結局 || []).find((e) => String(e.id) === String(id));
+      const name = entry ? entry.名稱 : ({ despair: (G.絕望線 || {}).名稱 || "絕望線", hope: (G.希望線 || {}).名稱 || "希望線", perfect: (G.完美結局 || {}).名稱 || "完美結局" }[id] || "");
+      const ok = await this.confirm({
+        title: "回顧結局",
+        text: (name ? name + "\n\n" : "") + "要跳到這段結局回顧嗎？\n回顧不會影響目前的進度、花瓣和存檔，看完會回到結局圖鑑。",
+        buttons: [{ label: "取消", value: false }, { label: "回顧", value: true, kind: "primary" }],
+      });
+      if (!ok) return;
       this.closeAll();
       this.showBase(null); Title.stop(); UI.setPlaying(true);
       const day = special || /^[89]$/.test(id) ? 30 : 20;
@@ -842,7 +852,7 @@
         const names = UI.staffNames(raw);
         if (!role || !names.length) return;
         const row = el("div", "staff-row");
-        row.append(el("div", "staff-role", role), el("div", "staff-names", names.join("\n")));
+        row.append(el("div", "staff-role", role), el("div", "staff-names", names.join(names.some((n) => String(n).includes("\n")) ? "\n\n" : "\n")));
         wrap.append(row);
       });
       body.append(wrap);

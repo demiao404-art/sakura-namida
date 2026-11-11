@@ -24,9 +24,15 @@ window.GAME_CONFIG = {
   //   名字寫成 { 名字: "⋯⋯", 通關後才顯示: true } 的話，只有走完希望線（標題變成「櫻咲」）的玩家看得到
   工作人員名單: [
     ["", "櫻-淚與咲"],
-    ["原作・企劃・劇本\n角色設定・遊戲設計・監製", "娃娃"],
+    ["原作・企劃・劇本\n角色設定・遊戲設計・監製", "紗羅紗羅"],
     ["角色設計・櫻 立繪", "阿白"],
-    ["劇本協作・程式・背景美術・音樂・音效", "Claude（Anthropic）"],
+    ["背景素材", "みんちりえ", "きまぐれアフター"],
+    ["字型", "辰宇落雁體\n王立宇・劉韋辰\nSIL Open Font License 1.1"],
+    ["音樂\n錄音來源：Wikimedia Commons\n（皆已剪輯：去除頭尾空白、調整音量、轉為 mp3）",
+      "薩提〈吉諾佩第第一號〉\n演奏：Robin Alciatore（Musopen）\n公有領域",
+      "蕭邦〈前奏曲 Op.28 No.4〉\n演奏：Ivan Ilić\nCC BY 3.0（creativecommons.org/licenses/by/3.0）",
+      "帕海貝爾〈D 大調卡農〉（只取卡農，結尾淡出）\n演奏：Jeffrey C. Hall\nCC BY-SA 3.0（creativecommons.org/licenses/by-sa/3.0）\n剪輯後的音檔同樣以 CC BY-SA 3.0 釋出"],
+    ["劇本協作・程式・音效", "Claude（Anthropic）"],
     ["字型", "Noto Serif TC（SIL Open Font License）"],
     ["雲端存檔", "Firebase"],
     // 特別感謝：整段只有走完希望線（標題變成「櫻咲」）的玩家看得到
@@ -131,7 +137,7 @@ window.GAME_CONFIG = {
     "櫻花落下來的時候\n並不是沒有人願意接住\n這次\n成功了\n你做到了",
     "致螢幕前的你\n或許此時此刻你也被生活壓得喘不過氣\n或許壓力使你難以抬頭\n或許一切似乎都沒有希望",
     "但是\n也許你現在還看不見\n會有個人願意等著你回來\n等著你陪伴他／她\n一起聊天\n一起玩遊戲\n一起出去玩",
-    "至少\n作為這個遊戲的作者\n我　娃娃\n希望你活著",
+    "至少\n作為這個遊戲的作者\n我　紗羅紗羅\n希望你活著",
     "能夠撐到今天\n你已經很厲害了\n但是\n不必再孤身一人了",
     "如果你也正在經歷很難熬的日子\n請讓身邊的人知道\n安心專線 1925\n24 小時 免付費",
   ],
@@ -212,6 +218,18 @@ window.GAME_CONFIG = {
         "低落": "assets/characters/sakura/down.png",
         "哭泣": "assets/characters/sakura/cry.png",
         "不甘": "assets/characters/sakura/frustrated.png",
+        // 第 21 天便利商店的居家服（黑色連帽上衣）。微笑和苦笑先用同一張；阿白畫好之後，把右邊的檔名換掉就好
+        "居家服": "assets/characters/sakura/loungewear.png",
+        "居家服微笑": "assets/characters/sakura/loungewear.png",
+        "居家服苦笑": "assets/characters/sakura/loungewear.png",
+        // 第 13 天圖書館的便服（淡色針織衫）。目前只有一張，微笑和苦笑先用同一張；阿白畫好之後，把右邊的檔名換掉就好
+        "針織衫": "assets/characters/sakura/cardigan.png",
+        "針織衫微笑": "assets/characters/sakura/cardigan.png",
+        "針織衫苦笑": "assets/characters/sakura/cardigan.png",
+        // 第 27 天逛街的便服（淺藍色貓耳連帽外套）
+        "貓耳外套": "assets/characters/sakura/hoodie_cat.png",
+        "貓耳外套微笑": "assets/characters/sakura/hoodie_cat_smile.png",
+        "貓耳外套苦笑": "assets/characters/sakura/hoodie_cat_forced.png",   // 用笑容撐著（汗滴）
       },
     },
     // 沒有立繪的角色也可以在這裡設定名字顏色
@@ -229,38 +247,42 @@ window.GAME_CONFIG = {
   // 建議尺寸 1600 × 900 或 1920 × 1080
   // ---------------------------------------------------------
   背景: {
-    "校門櫻花":   "assets/bg/gate.webp",
-    "校門綠葉":   "assets/bg/gate_leaves.webp",   // 花謝了以後，長出綠葉的櫻花樹
-    "校門花葉":   "assets/bg/gate_mix.webp",      // 櫻被救贖之後：櫻花和綠葉一起長著的樹
-    "教室":       "assets/bg/classroom_day.webp",
-    "教室黃昏":   "assets/bg/classroom_dusk.webp",
-    "走廊":       "assets/bg/hallway.webp",
-    "頂樓":       "assets/bg/rooftop_day.webp",
-    "頂樓黃昏":   "assets/bg/rooftop_dusk.webp",
-    "頂樓夜晚":   "assets/bg/rooftop_night.webp",
-    "保健室":     "assets/bg/infirmary.webp",
-    "放學路":     "assets/bg/street_dusk.webp",
-    "房間":       "assets/bg/room_day.webp",
-    "房間夜晚":   "assets/bg/room_night.webp",
-    "天空":       "assets/bg/sky.webp",
-    "圖書館":     "assets/bg/library.webp",
-    "河堤黃昏":   "assets/bg/riverbank_dusk.webp",
-    "鬆餅店":     "assets/bg/cafe.webp",
+    // 背景素材：みんちりえ（https://min-chi.material.jp/）、きまぐれアフター（http://www5d.biglobe.ne.jp/~gakai/）
+    "校門櫻花":   "assets/bg/gate.jpg",              // みんちりえ
+    "校門綠葉":   "assets/bg/gate_leaves.jpg",       // 花謝了以後，長出綠葉的櫻花樹（みんちりえ）
+    "校門花葉":   "assets/bg/gate.jpg",              // 櫻被救贖之後：先用有櫻花的校門（和「校門櫻花」同一張）
+    "教室":       "assets/bg/classroom_day.jpg",     // みんちりえ
+    "教室黃昏":   "assets/bg/classroom_dusk.jpg",    // みんちりえ
+    "走廊":       "assets/bg/hallway.jpg",           // きまぐれアフター
+    "樓梯":       "assets/bg/stairs.jpg",            // 通往頂樓的樓梯（みんちりえ）
+    "頂樓":       "assets/bg/rooftop_day.jpg",       // みんちりえ
+    "頂樓黃昏":   "assets/bg/rooftop_dusk.jpg",      // みんちりえ
+    "頂樓夜晚":   "assets/bg/rooftop_night.jpg",     // みんちりえ
+    "保健室":     "assets/bg/infirmary.jpg",         // きまぐれアフター
+    "放學路":     "assets/bg/street_dusk.jpg",       // きまぐれアフター
+    "商店街":     "assets/bg/downtown.jpg",          // 車站前的商店街，白天（きまぐれアフター）
+    "便利商店":   "assets/bg/shop.jpg",              // 河堤前路口的小店（きまぐれアフター）
+    "房間":       "assets/bg/room_day.jpg",          // きまぐれアフター
+    "房間夜晚":   "assets/bg/room_night.jpg",        // きまぐれアフター
+    "天空":       "assets/bg/sky.jpg",               // きまぐれアフター
+    "圖書館":     "assets/bg/library.jpg",           // きまぐれアフター
+    "河堤黃昏":   "assets/bg/riverbank_dusk.jpg",    // きまぐれアフター
+    "鬆餅店":     "assets/bg/cafe.jpg",              // 來源待補
     "黑":         "#000000",
     "白":         "#ffffff",
   },
 
   // 室外的背景：只有這些背景會顯示下雨。
   // 在室內（教室、走廊、保健室、房間）時，雨會停在窗外，畫面只會稍微暗一點。
-  室外背景: ["校門櫻花", "校門綠葉", "校門花葉", "頂樓", "頂樓黃昏", "頂樓夜晚", "放學路", "天空", "河堤黃昏"],
+  室外背景: ["校門櫻花", "校門綠葉", "校門花葉", "頂樓", "頂樓黃昏", "頂樓夜晚", "放學路", "商店街", "便利商店", "天空", "河堤黃昏"],
 
   // ---------------------------------------------------------
   // 音樂與音效（放進 assets/audio 後在這裡登記即可）
   // ---------------------------------------------------------
   音樂: {
-    "日常": "assets/audio/bgm/daily.mp3",   // 溫暖的鋼琴（F 大調）：平常的每一天
-    "悲傷": "assets/audio/bgm/sad.mp3",     // 安靜的鋼琴（A 小調）：第二次機會和結局
-    "希望": "assets/audio/bgm/hope.mp3",    // 小提琴、大提琴和長笛（D 大調），沒有鋼琴：櫻真正得到希望之後（她不喜歡鋼琴）
+    "日常": "assets/audio/bgm/daily.mp3",   // 薩提〈吉諾佩第第一號〉（鋼琴，Robin Alciatore／Musopen）：平常的每一天。公有領域
+    "悲傷": "assets/audio/bgm/sad.mp3",     // 蕭邦〈前奏曲 Op.28 No.4〉（鋼琴，Ivan Ilić 演奏）：第二次機會和結局。CC BY 3.0，要標示演奏者
+    "希望": "assets/audio/bgm/hope.mp3",    // 帕海貝爾〈D 大調卡農〉（弦樂，只取卡農、去掉吉格），沒有鋼琴：櫻真正得到希望之後（她不喜歡鋼琴）。Jeffrey C. Hall 演奏，CC BY-SA 3.0，剪輯後的檔案也要用同樣授權
   },
   // 每一天開始（[日 N]）時自動播放的音樂
   每日音樂: "日常",
@@ -296,7 +318,7 @@ window.GAME_CONFIG = {
       "特別是，如果你最近有傷害自己的念頭、曾經因為自殺失去重要的人，或正在經歷家庭的暴力與高壓，這個故事可能會比你想像中更沉重。建議你先不要玩，或是找一個信任的人陪你一起玩。",
       "若你在遊玩過程中感到任何心理壓力、焦慮或情緒過度低落，請隨時關閉遊戲。你的真實健康與安全，永遠比完成遊戲更重要。",
       // ※ 素材有更新時（例如背景、音樂、音效換成人做的，或新增了 AI 做的東西），記得同時修改這段「關於 AI」和上面的「工作人員名單」
-      "關於 AI：本作品有部分內容是藉由生成式AI（Anthropic 的 Claude）協助製作的。\n包括程式、背景、音樂與音效，以及劇本協作。",
+      "關於 AI：本作品有部分內容是藉由生成式AI（Anthropic 的 Claude）協助製作的。\n包括程式、音效，以及劇本協作。\n背景使用免費素材網站的圖片（みんちりえ、きまぐれアフター等），音樂使用 Wikimedia Commons 上的古典樂錄音。",
       "如果你需要有人陪你說說話：",
     ],
     求助資訊: [

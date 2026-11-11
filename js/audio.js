@@ -44,13 +44,23 @@
     current = { name, el };
   }
 
+  // 正在響的音效（快進或回到標題時，要能馬上全部切掉）
+  const activeSE = new Set();
   function se(name) {
     if (!unlocked) return;
     const src = name && (cfg.音效 || {})[name];
     if (!src) return;
     const el = new Audio(src);
     el.volume = vol("se");
-    el.play().catch(() => {});
+    activeSE.add(el);
+    const done = () => activeSE.delete(el);
+    el.addEventListener("ended", done);
+    el.addEventListener("error", done);
+    el.play().catch(done);
+  }
+  function stopSE() {
+    for (const el of activeSE) { try { el.pause(); el.currentTime = 0; } catch (e) {} }
+    activeSE.clear();
   }
 
   // ---------- 環境音（例如雨聲）：用 Web Audio 無縫循環 ----------
@@ -121,5 +131,5 @@
     if (ambient.node && actx) ambient.node.gain.setTargetAtTime(ambientWant.gain * vol("se"), actx.currentTime, 0.2);
   }
 
-  window.AudioMgr = { bgm, se, unlock, applyVolume, setAmbient };
+  window.AudioMgr = { bgm, se, stopSE, unlock, applyVolume, setAmbient };
 })();
